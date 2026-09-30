@@ -134,93 +134,93 @@ Como viajante, quero receber uma explicação clara e poder tentar novamente qua
 
 ### AC para FR-01 — Buscar cidades
 
-**Cenário 1 — Busca válida**
+#### AC-FR01-01 — Busca válida
 
-- **Dado** que o usuário esteja no estado inicial e informe um nome de cidade válido
-- **Quando** executar a busca
-- **Então** o sistema deve exibir um estado de carregamento e depois uma lista de resultados correspondentes ou uma mensagem de ausência de resultados
+- **Given** que o usuário esteja no estado inicial e informe um nome de cidade válido
+- **When** executar a busca
+- **Then** o sistema deve exibir um estado de carregamento e depois uma lista de resultados correspondentes ou uma mensagem de ausência de resultados
 
-**Cenário 2 — Entrada vazia**
+#### AC-FR01-02 — Entrada vazia
 
-- **Dado** que o campo esteja vazio ou contenha apenas espaços
-- **Quando** o usuário tentar buscar
-- **Então** o sistema não deve iniciar uma chamada e deve indicar que uma cidade precisa ser informada
+- **Given** que o campo esteja vazio ou contenha apenas espaços
+- **When** o usuário tentar buscar
+- **Then** o sistema não deve iniciar uma chamada e deve indicar que uma cidade precisa ser informada
 
 ### AC para FR-02 — Selecionar uma cidade
 
-**Cenário 1 — Seleção de resultado**
+#### AC-FR02-01 — Seleção de resultado
 
-- **Dado** que uma lista de cidades tenha sido exibida
-- **Quando** o usuário selecionar um resultado
-- **Então** a aplicação deve identificar a cidade selecionada e iniciar a consulta meteorológica associada à localização desse resultado
+- **Given** que uma lista de cidades tenha sido exibida
+- **When** o usuário selecionar um resultado
+- **Then** a aplicação deve identificar a cidade selecionada e iniciar a consulta meteorológica associada à localização desse resultado
 
-**Cenário 2 — Cidades homônimas**
+#### AC-FR02-02 — Cidades homônimas
 
-- **Dado** que existam dois resultados com o mesmo nome
-- **Quando** a lista for exibida
-- **Então** cada resultado deve apresentar informação adicional de localização suficiente para diferenciá-los
+- **Given** que existam dois resultados com o mesmo nome
+- **When** a lista for exibida
+- **Then** cada resultado deve apresentar informação adicional de localização suficiente para diferenciá-los
 
 ### AC para FR-03 — Exibir clima atual
 
-**Cenário 1 — Consulta bem-sucedida**
+#### AC-FR03-01 — Consulta bem-sucedida
 
-- **Dado** que o usuário tenha selecionado uma cidade
-- **Quando** os dados meteorológicos atuais forem recebidos
-- **Então** a aplicação deve exibir cidade, temperatura, unidade e condição meteorológica resumida
+- **Given** que o usuário tenha selecionado uma cidade
+- **When** os dados meteorológicos atuais forem recebidos
+- **Then** a aplicação deve exibir cidade, temperatura, unidade e condição meteorológica resumida
 
-**Cenário 2 — Referência temporal**
+#### AC-FR03-02 — Referência temporal
 
-- **Dado** que a fonte forneça horário ou momento de referência
-- **Quando** o clima atual for exibido
-- **Então** a aplicação deve apresentar esse contexto temporal de forma compreensível
+- **Given** que a fonte forneça horário ou momento de referência
+- **When** o clima atual for exibido
+- **Then** a aplicação deve apresentar esse contexto temporal de forma compreensível
 
 ### AC para FR-04 — Exibir previsão de cinco dias
 
-**Cenário 1 — Período correto**
+#### AC-FR04-01 — Período correto
 
-- **Dado** que a consulta meteorológica tenha sido concluída com sucesso
-- **Quando** a previsão for exibida
-- **Então** devem aparecer exatamente cinco dias, correspondentes a hoje e aos quatro dias seguintes, em ordem cronológica
+- **Given** que a consulta meteorológica tenha sido concluída com sucesso
+- **When** a previsão for exibida
+- **Then** devem aparecer exatamente cinco dias, correspondentes a hoje e aos quatro dias seguintes, em ordem cronológica
 
-**Cenário 2 — Dados mínimos por dia**
+#### AC-FR04-02 — Dados mínimos por dia
 
-- **Dado** que um dia possua dados válidos
-- **Quando** esse dia for exibido
-- **Então** o item deve mostrar dia, condição, temperatura máxima, temperatura mínima e unidade
+- **Given** que um dia possua dados válidos
+- **When** esse dia for exibido
+- **Then** o item deve mostrar dia, condição, temperatura máxima, temperatura mínima e unidade
 
 ### AC para FR-05 — Alternar unidade de temperatura
 
-**Cenário 1 — Conversão para Fahrenheit**
+#### AC-FR05-01 — Conversão para Fahrenheit
 
-- **Dado** que os dados estejam exibidos em Celsius
-- **Quando** o usuário selecionar Fahrenheit
-- **Então** a temperatura atual e todas as temperaturas da previsão devem ser atualizadas para Fahrenheit sem nova busca meteorológica
+- **Given** que os dados estejam exibidos em Celsius
+- **When** o usuário selecionar Fahrenheit
+- **Then** a temperatura atual e todas as temperaturas da previsão devem ser atualizadas para Fahrenheit sem nova busca meteorológica
 
-**Cenário 2 — Retorno para Celsius**
+#### AC-FR05-02 — Retorno para Celsius
 
-- **Dado** que os dados estejam exibidos em Fahrenheit
-- **Quando** o usuário selecionar Celsius
-- **Então** todos os valores devem voltar para Celsius e a unidade ativa deve ficar visível
+- **Given** que os dados estejam exibidos em Fahrenheit
+- **When** o usuário selecionar Celsius
+- **Then** todos os valores devem voltar para Celsius e a unidade ativa deve ficar visível
 
 ### AC para FR-06 — Comunicar estados da operação
 
-**Cenário 1 — Carregamento**
+#### AC-FR06-01 — Carregamento
 
-- **Dado** que uma busca esteja em andamento
-- **Quando** a aplicação estiver aguardando a resposta
-- **Então** deve haver uma indicação de carregamento e o usuário não deve interpretar a tela como resultado concluído
+- **Given** que uma busca esteja em andamento
+- **When** a aplicação estiver aguardando a resposta
+- **Then** deve haver uma indicação de carregamento e o usuário não deve interpretar a tela como resultado concluído
 
-**Cenário 2 — Erro recuperável**
+#### AC-FR06-02 — Erro recuperável
 
-- **Dado** que a consulta falhe por rede, timeout ou indisponibilidade da fonte
-- **Quando** o erro for identificado
-- **Então** a aplicação deve exibir uma mensagem clara e oferecer nova tentativa quando a recuperação for possível
+- **Given** que a consulta falhe por rede, timeout ou indisponibilidade da fonte
+- **When** o erro for identificado
+- **Then** a aplicação deve exibir uma mensagem clara e oferecer nova tentativa quando a recuperação for possível
 
-**Cenário 3 — Sem resultados**
+#### AC-FR06-03 — Sem resultados
 
-- **Dado** que a busca não encontre cidades
-- **Quando** a resposta for processada
-- **Então** a aplicação deve informar que nenhum resultado foi encontrado e manter o campo disponível para nova busca
+- **Given** que a busca não encontre cidades
+- **When** a resposta for processada
+- **Then** a aplicação deve informar que nenhum resultado foi encontrado e manter o campo disponível para nova busca
 
 ## Non-Functional Requirements
 
