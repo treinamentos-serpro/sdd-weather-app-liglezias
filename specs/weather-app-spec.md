@@ -149,18 +149,17 @@ Como viajante, quero receber uma explicação clara e poder tentar novamente qua
 
 | User Story | Requisitos funcionais | Critérios de aceite principais | Requisitos não funcionais |
 | --- | --- | --- | --- |
-| US-01 | FR-01, FR-02, FR-03 | AC-FR01-01, AC-FR02-01, AC-FR03-01 | RNF1, RNF6, RNF7 |
-| US-02 | FR-02, FR-03, FR-04 | AC-FR02-01, AC-FR03-01, AC-FR04-01 | RNF1, RNF7, RNF8 |
+| US-01 | FR-01, FR-02, FR-03, FR-06 | AC-FR01-01, AC-FR01-02, AC-FR01-03, AC-FR02-01, AC-FR03-01, AC-FR06-01 | RNF1, RNF3, RNF6, RNF7 |
+| US-02 | FR-02, FR-03, FR-04 | AC-FR02-01, AC-FR03-01, AC-FR03-02, AC-FR04-01, AC-FR04-02 | RNF1, RNF7, RNF8 |
 | US-03 | FR-01, FR-02 | AC-FR01-01, AC-FR02-02 | RNF3, RNF7 |
-| US-04 | FR-03, FR-04, FR-05 | AC-FR03-01, AC-FR04-02, AC-FR05-01 | RNF3, RNF8 |
-| US-05 | FR-01, FR-03, FR-04 | AC-FR01-01, AC-FR03-01, AC-FR04-01 | RNF2, RNF3 |
-| US-06 | FR-01, FR-02, FR-06, FR-07 | AC-FR06-02, AC-FR06-03, AC-FR07-01 | RNF4, RNF6 |
+| US-04 | FR-03, FR-04, FR-05 | AC-FR03-01, AC-FR04-02, AC-FR05-01, AC-FR05-02, AC-FR05-03 | RNF3, RNF8 |
+| US-05 | FR-01, FR-03, FR-04 | AC-FR01-01, AC-FR03-01, AC-FR04-01 | RNF1, RNF2, RNF3 |
+| US-06 | FR-06, FR-07 | AC-FR06-02, AC-FR06-03, AC-FR07-01, AC-FR07-02 | RNF4, RNF6 |
 
 ## Acceptance Criteria
 
 ### AC para FR-01 — Buscar cidades
 
-#### AC-FR01-01 — Busca válida
 #### AC-FR01-01 — Busca com resultados
 
 - **Given** que o usuário esteja no estado inicial e informe um nome de cidade válido
