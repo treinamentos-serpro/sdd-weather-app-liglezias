@@ -116,20 +116,39 @@ A unidade selecionada deve ser aplicada de maneira consistente em todas as tempe
 
 | Pergunta | Impacto se permanecer sem resposta |
 | --- | --- |
-| Qual fonte de dados meteorológicos será utilizada e ela exige autenticação ou possui limites de uso? | Pode alterar a arquitetura, o custo e a viabilidade da integração. |
+| Quem é o público prioritário e qual problema de decisão a aplicação deve resolver primeiro? | Sem prioridade de público, o produto pode tentar atender necessidades incompatíveis e perder foco. |
+| Qual é o objetivo de negócio e como será medido o sucesso do produto? | Impede definir métricas, priorizar funcionalidades e avaliar se a solução gera valor. |
+| A aplicação será pública, interna ou restrita a um grupo de usuários? | Altera autenticação, suporte, segurança, distribuição e requisitos de disponibilidade. |
+| Qual fonte de dados meteorológicos será utilizada? | Pode alterar a arquitetura, a qualidade dos dados, o custo e a viabilidade da integração. |
+| A fonte exige autenticação, possui limites de uso ou impõe restrições de licença? | Pode exigir gerenciamento de credenciais, cache, monitoramento e mudanças de escopo. |
 | A busca deve iniciar somente por ação explícita do usuário ou também com atraso após a digitação? | Afeta a experiência de busca, o número de requisições e o risco de atingir limites da API. |
-| O resultado da busca deve permitir selecionar uma cidade ou o sistema deve escolher automaticamente o primeiro resultado? | Pode causar consultas para a localização errada e afetar a usabilidade. |
+| O sistema deve sugerir resultados enquanto o usuário digita? | Define a complexidade da interação, a latência esperada e o volume de chamadas externas. |
+| O resultado da busca deve permitir seleção explícita ou o sistema deve escolher automaticamente o primeiro resultado? | A escolha automática pode consultar a localização errada e reduzir a confiança do usuário. |
 | Como diferenciar cidades homônimas: país, estado/província, região, coordenadas ou combinação desses dados? | Sem essa regra, o usuário pode visualizar o clima de uma cidade diferente da desejada. |
+| O sistema deve aceitar acentos, abreviações, erros de digitação e nomes em outros idiomas? | Afeta a taxa de sucesso da busca, a normalização do texto e a experiência internacional. |
 | A previsão de cinco dias inclui o dia atual ou representa os cinco dias completos seguintes? | Afeta o contrato de dados, o conteúdo exibido e os critérios de aceite. |
-| Quais dados devem ser exibidos além da temperatura e da condição meteorológica, como umidade, vento, pressão ou precipitação? | Pode alterar o modelo de dados e o espaço necessário na interface. |
+| A previsão será diária ou deve incluir dados por hora? | Define o modelo de dados, a densidade da interface e o custo de processamento. |
+| Quais dados devem ser exibidos além da temperatura e da condição meteorológica, como umidade, vento, pressão ou precipitação? | Pode alterar o modelo de dados, o espaço necessário e a prioridade das informações. |
+| Como o sistema deve representar uma condição meteorológica desconhecida ou um dado ausente? | Evita exibir informação enganosa ou quebrar a tela quando a resposta for parcial. |
 | A temperatura deve ser arredondada? Em caso afirmativo, para quantas casas decimais? | Pode gerar inconsistência visual e divergência entre testes e interface. |
-| Qual unidade deve ser usada inicialmente: Celsius ou a preferência do dispositivo/usuário? | Define o comportamento inicial e pode afetar a expectativa do público-alvo. |
+| Qual unidade deve ser usada inicialmente: Celsius, Fahrenheit ou preferência do dispositivo/usuário? | Define o comportamento inicial e pode afetar a expectativa do público-alvo. |
 | A escolha de unidade deve ser mantida entre consultas ou sessões? | Determina se será necessário persistir uma preferência do usuário. |
+| A conversão deve ocorrer localmente ou a API deve ser consultada novamente na nova unidade? | Afeta latência, consumo da API, precisão e complexidade da implementação. |
 | O produto precisa suportar favoritos, histórico, geolocalização ou consulta automática da localização atual? | Pode ampliar significativamente o escopo, a privacidade envolvida e a arquitetura. |
-| Quais idiomas e formatos de data devem ser suportados na primeira versão? | Afeta localização, conteúdo, formatação e cobertura de testes. |
+| A geolocalização será opcional? Como o sistema funcionará quando o usuário negar permissão? | Define o fluxo de fallback e evita bloquear a consulta manual. |
+| O usuário poderá consultar apenas uma cidade por vez ou comparar várias cidades? | Altera o modelo de estado, o layout e a quantidade de chamadas à API. |
+| Quais idiomas, formatos de data e convenções regionais devem ser suportados na primeira versão? | Afeta localização, conteúdo, formatação e cobertura de testes. |
+| Qual deve ser o conteúdo inicial antes de o usuário fazer uma busca? | Define o estado vazio e a primeira impressão da aplicação. |
+| Como devem funcionar os estados de carregamento, erro, timeout, ausência de resultados e resposta parcial? | Sem regras consistentes, a experiência pode ficar confusa e dificultar a recuperação. |
+| Deve haver botão de tentar novamente e a última busca deve ser preservada após um erro? | Determina se o usuário precisará repetir trabalho e influencia a recuperação de falhas. |
 | Existe uma meta de tempo de resposta ou disponibilidade para a aplicação? | Sem metas, não há base objetiva para avaliar desempenho e confiabilidade. |
-| Quais navegadores e versões de dispositivos móveis precisam ser suportados? | Define a matriz de compatibilidade e os testes de responsividade. |
-| É necessário armazenar ou compartilhar dados de busca e localização do usuário? | Pode introduzir requisitos de privacidade, consentimento e persistência. |
+| A aplicação precisa funcionar com conexão instável, cache ou modo offline? | Pode exigir armazenamento local, políticas de validade e tratamento adicional de dados antigos. |
+| Quais navegadores, sistemas operacionais e versões de dispositivos móveis precisam ser suportados? | Define a matriz de compatibilidade e os testes de responsividade. |
+| Quais requisitos mínimos de acessibilidade serão adotados? | Sem um nível definido, não há critério objetivo para validar teclado, leitores de tela e contraste. |
+| É necessário armazenar, compartilhar ou enviar para terceiros dados de busca e localização do usuário? | Pode introduzir requisitos de privacidade, consentimento, retenção e conformidade. |
+| Haverá analytics, publicidade ou outras integrações de terceiros? | Afeta privacidade, desempenho, consentimento e arquitetura da aplicação. |
+| Quem será responsável por monitorar falhas da API, atualizar dependências e prestar suporte? | Sem ownership definido, incidentes e degradação do serviço podem permanecer sem tratamento. |
+| Quais funcionalidades estão explicitamente fora do escopo da primeira versão? | Evita crescimento descontrolado do produto e conflitos de expectativa entre stakeholders. |
 
 ## Suposições
 
