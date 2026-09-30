@@ -284,7 +284,6 @@ Como viajante, quero receber uma explicação clara e poder tentar novamente qua
 
 ### RNF1 — Performance
 
-- A carga inicial deve ocorrer em menos de 2 segundos em uma conexão típica.
 - A carga inicial deve ocorrer em menos de 2 segundos, medida do início da navegação até a interface inicial utilizável, em cache frio, dispositivo móvel intermediário e rede 4G simulada.
 - A busca deve apresentar feedback visual em até 100ms após a ação do usuário, ainda que a resposta da fonte demore.
 

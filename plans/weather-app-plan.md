@@ -51,7 +51,7 @@ Essa separação permite testar cada decisão no nível mais barato: funções p
 | TypeScript strict | Tipos e contratos | Reduz erros entre API, service, hook e componentes. |
 | React | Interface e composição | Já definido pela stack do projeto e adequado ao fluxo por estados. |
 | Vite | Build e desenvolvimento | Build estático simples e compatível com deploy em GitHub Pages. |
-| Tailwind CSS | Estilos responsivos | Permite implementar mobile-first e manter o escopo visual pequeno. |
+| Tailwind CSS | Estilos responsivos | Implementa mobile-first e o tema dark glassmorphism definido nas instruções do projeto. |
 | Open-Meteo | Geocoding e previsão | Fonte pública, sem chave de API, conforme RNF5. |
 | Vitest + Testing Library | Testes unitários e de componentes | Cobrem funções puras, services e comportamento acessível da UI. |
 | Playwright | Testes E2E | Valida jornada completa, erros e viewport de 320px. |
@@ -116,7 +116,7 @@ type Unit = 'celsius' | 'fahrenheit' // unidade exibida ao usuário
 interface City {
   id: number // identificador estável do resultado de geocoding
   name: string // nome da cidade
-  country: string // país da cidade
+  country?: string // país da cidade, quando fornecido pelo geocoding
   admin1?: string // estado, província ou região, quando disponível
   latitude: number // latitude em graus decimais
   longitude: number // longitude em graus decimais
@@ -144,8 +144,8 @@ interface ForecastDay {
 interface WeatherData {
   city: City // cidade usada na consulta
   timezone: string // fuso efetivamente usado pela resposta
-  current: CurrentWeather // dados meteorológicos atuais
-  forecast: ForecastDay[] // cinco dias: hoje + quatro dias
+  current?: CurrentWeather // clima atual, ausente se a seção vier incompleta
+  forecast?: ForecastDay[] // cinco dias completos; ausente se a seção vier incompleta
 }
 
 type AsyncStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error'
@@ -179,8 +179,10 @@ interface WeatherService {
 ### Regras do modelo
 
 - `City.id`, latitude e longitude identificam a cidade selecionada; o texto do input não é usado como identidade.
-- `WeatherData.forecast` só entra em `success` com cinco dias completos conforme FR-04.
-- Uma resposta sem campo essencial deve produzir erro ou estado de dados indisponíveis, nunca um valor inventado.
+- Se `WeatherData.forecast` estiver presente, terá exatamente cinco dias completos conforme FR-04.
+- Current e forecast são validados independentemente; uma resposta parcial pode preservar a seção completa.
+- Se país não vier no geocoding, a UI usa os demais dados de localização disponíveis e não inventa um país.
+- Uma seção sem campos essenciais não é renderizada; nenhum valor meteorológico é inventado.
 - A conversão para Fahrenheit e o arredondamento para inteiro ocorrem fora do modelo bruto, na camada de apresentação/lib.
 
 ## Data Flow
@@ -211,13 +213,16 @@ flowchart TB
   R --> S[UI: erro e retry]
   S -->|Tentar novamente| N
 
-  Q -->|Resposta parcial| T[UI: dados indisponíveis]
+  P -->|uma seção incompleta| T[Hook: sucesso parcial]
+  T --> U
 
-  Q -->|Sim| U[Hook: weather success]
+  Q -->|ao menos uma seção válida| U[Hook: weather success]
+  Q -->|nenhuma seção válida| Z[Hook: weather error]
   U --> V{Unidade?}
-  V -->|Celsius| W[UI: clima e previsão em C]
+  V -->|Celsius| W[UI: seções disponíveis em C]
   V -->|Fahrenheit| X[Conversão local C para F]
-  X --> Y[UI: clima e previsão em F]
+  X --> Y[UI: seções disponíveis em F]
+  T --> AA[UI: aviso de seção indisponível]
 
   classDef process fill:#e7f0ff,stroke:#315b8a,color:#14283f
   classDef decision fill:#fff2cc,stroke:#9a7415,color:#342800
@@ -226,7 +231,7 @@ flowchart TB
   class D,E,F,L,M,N,O,P process
   class B,G,Q,V decision
   class U,W,Y success
-  class C,H,I,J,K,R,S,T issue
+  class C,H,I,J,K,R,S,T,Z,AA issue
 ```
 
 ### Sequência principal
@@ -301,7 +306,7 @@ O service deve tratar ausência de `results` como lista vazia, não como exceç�
 - `current.time`, `current.temperature_2m`, `current.weather_code`;
 - `daily.time`, `daily.temperature_2m_min`, `daily.temperature_2m_max`, `daily.weather_code`.
 
-O service deve validar que os arrays `daily` têm cinco posições e que os campos essenciais possuem valores numéricos ou datas válidas. A resposta deve ser transformada em `WeatherData`; componentes não devem consumir o payload bruto.
+O service deve validar current e daily independentemente, conferindo tipos e datas. Uma seção completa pode ser mapeada mesmo se a outra estiver ausente ou incompleta. A resposta deve ser transformada em `WeatherData`; componentes não devem consumir o payload bruto.
 
 **Exemplo resumido de resposta:**
 
@@ -336,13 +341,13 @@ O service deve validar que os arrays `daily` têm cinco posições e que os camp
 | `daily.weather_code[i]` | `ForecastDay.condition.code` | Mapear cada código WMO para label pt-BR. |
 | `City` selecionada | `WeatherData.city` | Anexar a cidade que originou a consulta. |
 
-O normalizador deve rejeitar respostas sem `current`, `daily`, `timezone` ou sem cinco posições diárias válidas. Valores Fahrenheit nunca serão solicitados à API; a conversão ocorre localmente conforme FR-05.
+O normalizador exige cidade e timezone válidos. `current` só é definido quando todos os campos mínimos atuais são válidos; `forecast` só é definido quando os arrays diários têm cinco posições válidas. Se uma seção falhar, preservar a outra e indicar a seção indisponível. Se ambas falharem, retornar erro. Valores Fahrenheit nunca serão solicitados à API; a conversão ocorre localmente conforme FR-05.
 
 ### Política de rede
 
 - Usar `fetch` nativo ou helper pequeno equivalente, sem cliente HTTP adicional.
 - Propagar `AbortSignal` para cancelar uma busca substituída por outra.
-- Definir timeout no service e classificar HTTP não-2xx, timeout, rede e payload inválido em erros internos distintos.
+- Aplicar timeout de 10 segundos por request e classificar HTTP não-2xx, timeout, rede e payload inválido em erros internos distintos.
 - Não enviar chave, token ou dado pessoal para a API.
 
 ## State Management
@@ -373,9 +378,11 @@ interface WeatherViewModel {
 
 - `idle`: nenhuma cidade selecionada.
 - `loading`: forecast em andamento.
-- `success`: `WeatherData` válido.
+- `success`: ao menos uma seção (`current` ou `forecast`) está completa; `message` informa a seção indisponível quando houver resposta parcial.
 - `empty`: reservado para ausência de dados utilizáveis, sem inventar conteúdo.
 - `error`: falha recuperável ou não recuperável.
+
+O estado `error` deve ser usado quando nenhuma seção meteorológica puder ser exibida. Se apenas `current` ou `forecast` estiver válida, o estado é `success`, a seção completa é renderizada e a interface informa a indisponibilidade da outra.
 
 ### Unidade
 
@@ -404,7 +411,7 @@ O mesmo cálculo é aplicado a `temperatureMinC` e `temperatureMaxC` de cada `Fo
 
 ### Concorrência
 
-Cada nova busca cancela a requisição anterior quando possível e recebe um identificador de operação. Uma resposta cujo identificador não seja o atual deve ser ignorada.
+Cada nova busca aborta a requisição anterior usando `AbortController`. O hook ignora resultados e erros de operações cujo sinal já esteja abortado; não será mantido um contador paralelo de operações.
 
 ## Error Handling
 
@@ -430,8 +437,9 @@ Os services convertem falhas externas em `WeatherErrorKind`; componentes não tr
 | Forecast em andamento | `weather.loading` | indicador de carregamento | cidade |
 | Timeout ou falha de rede | `weather.error` | “Não foi possível carregar o clima. Tente novamente.” | cidade |
 | HTTP 429 ou indisponibilidade | `weather.error` | serviço temporariamente indisponível; retry manual | cidade |
-| JSON inválido/contrato inesperado | `weather.error` | dados indisponíveis; não renderizar payload parcial | cidade |
-| Dados parciais | `weather.error` | informar dados indisponíveis; não renderizar card incompleto | cidade e seções completas |
+| JSON inválido/contrato inesperado | validar cada seção | descartar apenas a seção inválida, se a outra estiver completa | cidade e seção válida |
+| Uma seção parcial | `weather.success` | exibir a seção completa e avisar qual está indisponível | cidade e seção completa |
+| Nenhuma seção meteorológica utilizável | `weather.error` | dados indisponíveis; oferecer retry | cidade |
 | Retry com sucesso | `weather.success` | atualizar dados | cidade |
 | Retry com nova falha | `weather.error` | manter retry disponível | cidade |
 
@@ -463,6 +471,7 @@ Services usarão mocks de `fetch`; nenhum teste unitário chamará a API real.
 - Estado `empty` para busca sem resultados e estado inicial sem dados.
 - Toggle de unidade sem nova chamada de rede.
 - Foco visível e nomes acessíveis dos controles principais.
+- Contraste WCAG AA: pelo menos 4.5:1 para texto normal e 3:1 para texto grande e componentes visuais relevantes, usando auditoria automatizada e revisão manual.
 
 Cada componente de estado deve ser testado isoladamente e também na composição de `App`, verificando que a mudança de estado substitui o conteúdo correto sem exibir dados obsoletos.
 
@@ -478,6 +487,14 @@ Os endpoints serão interceptados com `page.route` para respostas determinístic
 6. Retry com nova falha.
 7. Jornada completa em viewport de 320px e viewport desktop.
 8. Navegação do fluxo principal apenas com teclado.
+9. Resposta parcial: renderizar somente a seção completa e informar a seção indisponível.
+10. Auditoria automatizada de contraste e acessibilidade WCAG AA básico.
+
+### Verificação de performance
+
+- Medir do início da navegação até a interface inicial utilizável com cache frio, viewport móvel intermediária e rede 4G simulada; o resultado deve ser inferior a 2 segundos.
+- Medir da ação de busca até o feedback visual; o resultado deve ser de até 100ms.
+- Executar as medições em perfil controlado e registrar separadamente o tempo de renderização e o tempo de resposta da API.
 
 ### Quality gates
 
@@ -495,7 +512,9 @@ Antes de considerar uma tarefa concluída: `pnpm lint`, `pnpm build` e `pnpm tes
 | Sem cliente HTTP adicional | Menos dependências versus menos helpers prontos | Axios ou cliente de dados completo | Usar `fetch` e um pequeno normalizador de erros. |
 | Sem telemetria de usuário | Menor risco de privacidade versus menor visibilidade operacional | Analytics e error tracking de terceiros | Usar mensagens na UI, smoke checks e ownership explícito. |
 | Suporte às duas versões mais recentes | Menor custo de testes versus não cobrir browsers antigos | Suportar versões antigas com polyfills | Validar Chrome, Edge, Firefox e Safari desktop/mobile definidos na spec. |
-| Falha parcial de dados | Evita informação enganosa versus menos conteúdo exibido | Renderizar cards parcialmente preenchidos | Renderizar somente seções completas e sinalizar indisponibilidade. |
+| Falha parcial de dados | Preserva informação válida versus menos conteúdo exibido | Descartar todo o payload ou renderizar cards incompletos | Validar current e forecast independentemente; exibir seção completa e avisar a indisponível. |
+| Timeout da API | Evita espera indefinida versus interrupção de redes lentas | Aguardar indefinidamente ou configurar tempos diferentes | Aplicar timeout de 10 segundos por request e retry manual. |
+| País ausente no geocoding | Contrato tolerante versus menos contexto de localização | Exigir país em todo resultado | Manter `country` opcional e exibir apenas os dados recebidos. |
 
 ### Pontos de atenção para o próximo backlog
 
