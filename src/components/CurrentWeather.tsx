@@ -41,11 +41,7 @@ export default function CurrentWeather({ city, current, unit }: CurrentWeatherPr
           <p className="mt-3 text-base text-white/75">{current.condition.label}</p>
         </div>
 
-        <span
-          role="img"
-          aria-label={current.condition.label}
-          className="self-start text-6xl sm:self-center sm:text-7xl"
-        >
+        <span aria-hidden="true" className="self-start text-6xl sm:self-center sm:text-7xl">
           {getWeatherIcon(current.condition.code)}
         </span>
       </div>

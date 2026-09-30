@@ -8,6 +8,7 @@ describe('EmptyState', () => {
       <EmptyState title="Nenhuma cidade encontrada" hint="Tente outro nome ou confira a grafia." />,
     );
 
+    expect(screen.getByRole('status')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Nenhuma cidade encontrada' })).toBeInTheDocument();
     expect(screen.getByText('Tente outro nome ou confira a grafia.')).toBeInTheDocument();
   });

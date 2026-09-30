@@ -27,7 +27,7 @@ describe('CurrentWeather', () => {
     render(<CurrentWeather city={city} current={current} unit="fahrenheit" />);
 
     expect(screen.getByRole('heading', { name: 'São Paulo' })).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: 'Parcialmente nublado' })).toHaveTextContent('⛅');
+    expect(screen.getByText('Parcialmente nublado')).toBeInTheDocument();
     expect(screen.getByText('72°F')).toBeInTheDocument();
     expect(screen.getByText('68 %')).toBeInTheDocument();
     expect(screen.getByText('12,5 km/h')).toBeInTheDocument();

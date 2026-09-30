@@ -54,16 +54,17 @@ export default function App() {
     <div className="min-h-screen bg-night-900 text-white">
       <header className="border-b border-white/10 bg-night-800/80 px-4 py-4 backdrop-blur-md sm:px-6">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 sm:flex-row sm:items-center">
-          <a
-            href="#weather-content"
-            className="flex shrink-0 items-center gap-2 rounded-lg text-lg font-semibold tracking-tight focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent-400"
-            aria-label="Clima Agora — ir para o conteúdo"
-          >
-            <span aria-hidden="true" className="text-2xl text-sun">
-              ☀
-            </span>
-            <span>Clima Agora</span>
-          </a>
+          <h1 className="shrink-0 text-lg font-semibold tracking-tight">
+            <a
+              href="#weather-content"
+              className="flex items-center gap-2 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent-400"
+            >
+              <span aria-hidden="true" className="text-2xl text-sun">
+                ☀
+              </span>
+              <span>Clima Agora</span>
+            </a>
+          </h1>
 
           <div className="min-w-0 flex-1">
             <SearchBar onSearch={handleSearch} disabled={weatherState.status === 'loading'} />

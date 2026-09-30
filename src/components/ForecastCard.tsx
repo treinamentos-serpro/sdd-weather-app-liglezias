@@ -26,7 +26,7 @@ export default function ForecastCard({ forecastDay, dayIndex, unit }: ForecastCa
         </header>
 
         <div className="my-4 text-center">
-          <span aria-label={forecastDay.condition.label} role="img" className="text-4xl">
+          <span aria-hidden="true" className="text-4xl">
             {getWeatherIcon(forecastDay.condition.code)}
           </span>
           <p className="mt-2 min-h-10 text-sm text-white/70">{forecastDay.condition.label}</p>

@@ -21,7 +21,7 @@ export default function SearchBar({ onSearch, disabled = false }: SearchBarProps
     <form
       role="search"
       onSubmit={handleSubmit}
-      className="flex w-full items-end gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 shadow-glass backdrop-blur-md"
+      className="flex w-full flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 shadow-glass backdrop-blur-md sm:flex-row sm:items-end"
     >
       <div className="min-w-0 flex-1">
         <label htmlFor="city-search" className="sr-only">
@@ -40,7 +40,7 @@ export default function SearchBar({ onSearch, disabled = false }: SearchBarProps
       <button
         type="submit"
         disabled={disabled}
-        className="shrink-0 rounded-xl bg-accent-500 px-5 py-3 font-medium text-white transition-colors hover:bg-accent-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-400 disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-full shrink-0 rounded-xl bg-accent-400 px-5 py-3 font-semibold text-night-900 transition-colors hover:bg-accent-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-400 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
       >
         Buscar
       </button>

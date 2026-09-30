@@ -7,9 +7,8 @@ describe('App', () => {
   it('starts idle with brand, search, and unit controls', () => {
     render(<App />);
 
-    expect(
-      screen.getByRole('link', { name: 'Clima Agora — ir para o conteúdo' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Clima Agora' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Clima Agora' })).toBeInTheDocument();
     expect(screen.getByRole('search')).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'Unidade de temperatura' })).toBeInTheDocument();
     expect(
@@ -51,7 +50,7 @@ describe('App', () => {
     await user.type(screen.getByRole('searchbox', { name: 'Buscar cidade' }), 'São Paulo');
     await user.click(screen.getByRole('button', { name: 'Buscar' }));
     await screen.findByText('22°C');
-    await user.click(screen.getByRole('button', { name: '°F' }));
+    await user.click(screen.getByRole('button', { name: 'Fahrenheit' }));
 
     expect(screen.getByText('72°F')).toBeInTheDocument();
     expect(screen.getByText('77°F')).toBeInTheDocument();

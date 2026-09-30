@@ -17,7 +17,7 @@ describe('ForecastList', () => {
     expect(within(cards[0]).getByText('25°C')).toBeInTheDocument();
     expect(within(cards[0]).getByText('16°C')).toBeInTheDocument();
     expect(within(cards[0]).getByText('15%')).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: 'Parcialmente nublado' })).toBeInTheDocument();
+    expect(screen.getByText('Parcialmente nublado')).toBeInTheDocument();
   });
 
   it('converts maximum and minimum temperatures to the selected unit', () => {

@@ -14,11 +14,12 @@ export default function UnitToggle({ unit, onChange }: UnitToggleProps) {
     >
       <button
         type="button"
+        aria-label="Celsius"
         aria-pressed={unit === 'celsius'}
         onClick={() => onChange('celsius')}
         className={`rounded-full px-4 py-2 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-400 ${
           unit === 'celsius'
-            ? 'bg-accent-500 text-white'
+            ? 'bg-accent-400 font-semibold text-night-900'
             : 'text-white/70 hover:bg-white/10 hover:text-white'
         }`}
       >
@@ -26,11 +27,12 @@ export default function UnitToggle({ unit, onChange }: UnitToggleProps) {
       </button>
       <button
         type="button"
+        aria-label="Fahrenheit"
         aria-pressed={unit === 'fahrenheit'}
         onClick={() => onChange('fahrenheit')}
         className={`rounded-full px-4 py-2 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-400 ${
           unit === 'fahrenheit'
-            ? 'bg-accent-500 text-white'
+            ? 'bg-accent-400 font-semibold text-night-900'
             : 'text-white/70 hover:bg-white/10 hover:text-white'
         }`}
       >
