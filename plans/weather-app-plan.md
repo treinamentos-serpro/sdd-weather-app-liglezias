@@ -214,6 +214,26 @@ flowchart LR
 
 O service deve tratar ausência de `results` como lista vazia, não como exceção.
 
+**Exemplo resumido de resposta:**
+
+```json
+{
+  "results": [
+    {
+      "id": 3451190,
+      "name": "Sao Paulo",
+      "latitude": -23.55,
+      "longitude": -46.63,
+      "country": "Brazil",
+      "admin1": "Sao Paulo",
+      "timezone": "America/Sao_Paulo"
+    }
+  ]
+}
+```
+
+**Mapeamento para `City`:** `id`, `name`, `country`, `admin1`, `latitude`, `longitude` e `timezone` são copiados para o contrato interno. O service pode normalizar labels de país/região para pt-BR, mas não deve alterar coordenadas ou o identificador.
+
 ### Forecast
 
 **Endpoint:** `GET https://api.open-meteo.com/v1/forecast`
@@ -237,6 +257,41 @@ O service deve tratar ausência de `results` como lista vazia, não como exceç�
 - `daily.time`, `daily.temperature_2m_min`, `daily.temperature_2m_max`, `daily.weather_code`.
 
 O service deve validar que os arrays `daily` têm cinco posições e que os campos essenciais possuem valores numéricos ou datas válidas. A resposta deve ser transformada em `WeatherData`; componentes não devem consumir o payload bruto.
+
+**Exemplo resumido de resposta:**
+
+```json
+{
+  "timezone": "America/Sao_Paulo",
+  "current": {
+    "time": "2026-09-30T10:00",
+    "temperature_2m": 22.4,
+    "weather_code": 2
+  },
+  "daily": {
+    "time": ["2026-09-30", "2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04"],
+    "temperature_2m_min": [16.1, 17.0, 18.2, 19.0, 18.4],
+    "temperature_2m_max": [25.3, 26.0, 27.1, 28.0, 25.8],
+    "weather_code": [2, 3, 61, 1, 80]
+  }
+}
+```
+
+**Mapeamento para os contratos internos:**
+
+| Resposta Open-Meteo | Contrato interno | Regra |
+| --- | --- | --- |
+| `timezone` | `WeatherData.timezone` | Preservar o identificador IANA retornado. |
+| `current.time` | `CurrentWeather.time` | Preservar o timestamp no fuso da cidade. |
+| `current.temperature_2m` | `CurrentWeather.temperatureC` | Usar como Celsius porque `temperature_unit=celsius`. |
+| `current.weather_code` | `CurrentWeather.condition.code` | Mapear o código WMO para label pt-BR em `condition.label`. |
+| `daily.time[i]` | `ForecastDay.date` | Criar um item por índice, em ordem cronológica. |
+| `daily.temperature_2m_min[i]` | `ForecastDay.temperatureMinC` | Usar o valor Celsius do mesmo índice. |
+| `daily.temperature_2m_max[i]` | `ForecastDay.temperatureMaxC` | Usar o valor Celsius do mesmo índice. |
+| `daily.weather_code[i]` | `ForecastDay.condition.code` | Mapear cada código WMO para label pt-BR. |
+| `City` selecionada | `WeatherData.city` | Anexar a cidade que originou a consulta. |
+
+O normalizador deve rejeitar respostas sem `current`, `daily`, `timezone` ou sem cinco posições diárias válidas. Valores Fahrenheit nunca serão solicitados à API; a conversão ocorre localmente conforme FR-05.
 
 ### Política de rede
 
