@@ -22,7 +22,7 @@ A primeira versão será orientada a consultas imediatas, sem autenticação e s
 
 ### Escopo da consulta
 
-A aplicação terá uma cidade em foco por vez. A previsão será diária e compreenderá o dia atual e os quatro dias seguintes. O clima atual e a previsão deverão estar associados à cidade selecionada e ao respectivo fuso horário.
+A aplicação terá uma cidade em foco por vez. A previsão será diária e compreenderá o dia atual e os quatro dias seguintes. O clima atual e a previsão deverão estar associados à cidade selecionada e ao respectivo fuso horário, que será usado para identificar e formatar as datas exibidas.
 
 ## Functional Requirements
 
@@ -32,7 +32,9 @@ O sistema deve permitir que o usuário informe o nome de uma cidade e inicie uma
 
 - O campo deve aceitar texto digitado.
 - A busca deve ser acionada por ação explícita do usuário.
+- O campo deve aceitar no mínimo 2 caracteres não vazios e limitar a lista exibida a no máximo 10 resultados.
 - Entradas vazias ou compostas apenas por espaços não devem iniciar uma chamada.
+- A busca deve preservar acentos e espaços internos do nome informado.
 - Os resultados devem conter dados suficientes para diferenciar cidades homônimas, incluindo no mínimo nome da cidade e país quando disponíveis.
 - O sistema deve apresentar estado de carregamento enquanto a busca estiver em andamento.
 - O sistema deve informar quando não houver resultados.
@@ -44,6 +46,7 @@ O sistema deve permitir que o usuário selecione uma cidade entre os resultados 
 - A cidade selecionada deve ficar identificada na área de clima.
 - A seleção deve usar o identificador e a localização retornados pelo resultado, não apenas o texto digitado.
 - A seleção deve iniciar a consulta meteorológica da cidade.
+- Uma seleção deve iniciar uma única consulta meteorológica para a cidade selecionada.
 - O usuário deve conseguir distinguir cidades com o mesmo nome por país, região ou outra informação de localização disponível.
 
 ### FR-03 — Exibir clima atual
@@ -56,7 +59,9 @@ A área de clima atual deve apresentar, no mínimo:
 - temperatura atual;
 - unidade da temperatura;
 - condição meteorológica resumida;
-- horário ou momento de referência dos dados, quando fornecido pela fonte.
+- horário ou momento de referência dos dados, formatado no fuso horário da cidade quando fornecido pela fonte.
+- Quando a fonte não fornecer referência temporal, a interface não deve inventar um horário.
+- As datas devem ser calculadas e exibidas no fuso horário da cidade selecionada.
 
 ### FR-04 — Exibir previsão de cinco dias
 
@@ -81,6 +86,7 @@ O sistema deve permitir alternar a exibição entre Celsius e Fahrenheit.
 - A troca deve atualizar a temperatura atual e todos os valores da previsão.
 - A troca de unidade não deve realizar nova busca meteorológica.
 - Os valores convertidos devem usar uma regra única de conversão e arredondamento.
+- Os valores devem ser arredondados para o inteiro mais próximo antes da exibição.
 
 ### FR-06 — Comunicar estados da operação
 
@@ -91,6 +97,15 @@ O sistema deve comunicar os estados relevantes da jornada de consulta.
 - Em caso de erro, deve apresentar uma mensagem clara e, quando aplicável, uma ação de nova tentativa.
 - Quando não houver resultados, deve informar essa condição sem tratá-la como erro técnico.
 - O sistema não deve exibir dados de uma consulta anterior como se fossem resultado da nova cidade solicitada.
+
+### FR-07 — Tentar novamente uma consulta
+
+O sistema deve permitir nova tentativa quando uma consulta meteorológica falhar de forma recuperável.
+
+- A ação de retry deve manter a cidade selecionada e repetir a consulta meteorológica mais recente.
+- Ao iniciar o retry, a interface deve voltar ao estado de carregamento.
+- Em caso de sucesso, deve exibir os dados atualizados.
+- Em caso de nova falha, deve manter a mensagem de erro e a possibilidade de tentar novamente.
 
 ## User Stories
 
@@ -130,21 +145,45 @@ Como viajante, quero receber uma explicação clara e poder tentar novamente qua
 
 **Requisitos relacionados:** FR-01, FR-02, FR-06.
 
+### Rastreabilidade
+
+| User Story | Requisitos funcionais | Critérios de aceite principais | Requisitos não funcionais |
+| --- | --- | --- | --- |
+| US-01 | FR-01, FR-02, FR-03 | AC-FR01-01, AC-FR02-01, AC-FR03-01 | RNF1, RNF6, RNF7 |
+| US-02 | FR-02, FR-03, FR-04 | AC-FR02-01, AC-FR03-01, AC-FR04-01 | RNF1, RNF7, RNF8 |
+| US-03 | FR-01, FR-02 | AC-FR01-01, AC-FR02-02 | RNF3, RNF7 |
+| US-04 | FR-03, FR-04, FR-05 | AC-FR03-01, AC-FR04-02, AC-FR05-01 | RNF3, RNF8 |
+| US-05 | FR-01, FR-03, FR-04 | AC-FR01-01, AC-FR03-01, AC-FR04-01 | RNF2, RNF3 |
+| US-06 | FR-01, FR-02, FR-06, FR-07 | AC-FR06-02, AC-FR06-03, AC-FR07-01 | RNF4, RNF6 |
+
 ## Acceptance Criteria
 
 ### AC para FR-01 — Buscar cidades
 
 #### AC-FR01-01 — Busca válida
+#### AC-FR01-01 — Busca com resultados
 
 - **Given** que o usuário esteja no estado inicial e informe um nome de cidade válido
 - **When** executar a busca
-- **Then** o sistema deve exibir um estado de carregamento e depois uma lista de resultados correspondentes ou uma mensagem de ausência de resultados
+- **Then** o sistema deve exibir um estado de carregamento e depois uma lista com até 10 resultados correspondentes
 
 #### AC-FR01-02 — Entrada vazia
 
 - **Given** que o campo esteja vazio ou contenha apenas espaços
 - **When** o usuário tentar buscar
 - **Then** o sistema não deve iniciar uma chamada e deve indicar que uma cidade precisa ser informada
+
+#### AC-FR01-03 — Busca sem resultados
+
+- **Given** que o usuário informe um texto com pelo menos 2 caracteres e não existam cidades correspondentes
+- **When** executar a busca
+- **Then** o sistema deve exibir a mensagem de nenhum resultado e manter o campo disponível para nova busca
+
+#### AC-FR01-04 — Texto curto
+
+- **Given** que o usuário informe menos de 2 caracteres não vazios
+- **When** tentar buscar
+- **Then** o sistema não deve iniciar uma chamada e deve indicar o tamanho mínimo da busca
 
 ### AC para FR-02 — Selecionar uma cidade
 
@@ -172,7 +211,7 @@ Como viajante, quero receber uma explicação clara e poder tentar novamente qua
 
 - **Given** que a fonte forneça horário ou momento de referência
 - **When** o clima atual for exibido
-- **Then** a aplicação deve apresentar esse contexto temporal de forma compreensível
+- **Then** a aplicação deve apresentar esse contexto temporal no fuso horário da cidade, sem inventar um horário ausente
 
 ### AC para FR-04 — Exibir previsão de cinco dias
 
@@ -202,6 +241,12 @@ Como viajante, quero receber uma explicação clara e poder tentar novamente qua
 - **When** o usuário selecionar Celsius
 - **Then** todos os valores devem voltar para Celsius e a unidade ativa deve ficar visível
 
+#### AC-FR05-03 — Arredondamento consistente
+
+- **Given** que uma temperatura convertida tenha parte decimal
+- **When** a temperatura for exibida
+- **Then** o valor deve ser arredondado para o inteiro mais próximo tanto no clima atual quanto na previsão
+
 ### AC para FR-06 — Comunicar estados da operação
 
 #### AC-FR06-01 — Carregamento
@@ -222,12 +267,27 @@ Como viajante, quero receber uma explicação clara e poder tentar novamente qua
 - **When** a resposta for processada
 - **Then** a aplicação deve informar que nenhum resultado foi encontrado e manter o campo disponível para nova busca
 
+### AC para FR-07 — Tentar novamente uma consulta
+
+#### AC-FR07-01 — Retry bem-sucedido
+
+- **Given** que a consulta meteorológica tenha falhado e a cidade selecionada ainda esteja disponível
+- **When** o usuário acionar a nova tentativa
+- **Then** a aplicação deve manter a cidade, exibir carregamento, realizar uma nova consulta e exibir os dados quando a resposta for bem-sucedida
+
+#### AC-FR07-02 — Retry com nova falha
+
+- **Given** que uma nova tentativa também falhe
+- **When** o erro for processado
+- **Then** a aplicação deve exibir a mensagem de erro e manter a ação de nova tentativa disponível
+
 ## Non-Functional Requirements
 
 ### RNF1 — Performance
 
 - A carga inicial deve ocorrer em menos de 2 segundos em uma conexão típica.
-- A busca deve fornecer feedback visual imediato e ser percebida como instantânea, ainda que a resposta da fonte demore.
+- A carga inicial deve ocorrer em menos de 2 segundos, medida do início da navegação até a interface inicial utilizável, em cache frio, dispositivo móvel intermediário e rede 4G simulada.
+- A busca deve apresentar feedback visual em até 100ms após a ação do usuário, ainda que a resposta da fonte demore.
 
 ### RNF2 — Responsividade
 
@@ -254,9 +314,12 @@ Como viajante, quero receber uma explicação clara e poder tentar novamente qua
 - A consulta não deve exigir chave de API no cliente nem segredo durante o deploy estático.
 
 ### RNF6 — Observabilidade básica
+### RNF6 — Mensagens de erro e observabilidade básica
 
 - Mensagens de erro devem ser claras, específicas e compreensíveis para usuários não técnicos.
+- A interface deve distinguir no mínimo input inválido, nenhum resultado, timeout, falha de rede e indisponibilidade da fonte.
 - Quando possível, a mensagem deve indicar a ação de recuperação, como tentar novamente ou ajustar a busca.
+| Resposta meteorológica parcial | Se faltar um campo essencial, não montar o card correspondente; indicar que os dados estão indisponíveis e preservar apenas seções completas. |
 
 ### RNF7 — Usabilidade
 
@@ -306,6 +369,7 @@ Como viajante, quero receber uma explicação clara e poder tentar novamente qua
 - A fonte fornecerá dados suficientes para identificar a cidade e montar a previsão diária.
 - Usuários terão acesso a um navegador moderno com conexão para consultar dados atualizados.
 - A aplicação poderá exibir estado vazio, erro e loading sem depender de notificações externas.
+- Nenhuma preferência, última cidade ou cache será persistido localmente na primeira versão.
 
 ## Risks
 
@@ -329,6 +393,7 @@ A primeira versão não incluirá:
 - comparação simultânea de várias cidades;
 - alertas meteorológicos, notificações ou previsões personalizadas;
 - geolocalização automática como requisito do fluxo principal;
+- solicitação de permissão de geolocalização;
 - mapas, radar ou visualizações geográficas;
 - modo offline garantido ou sincronização de cache;
 - previsão horária detalhada;
@@ -340,14 +405,9 @@ A primeira versão não incluirá:
 ## Open Questions
 
 As seguintes questões permanecem abertas e devem ser resolvidas antes de transformar a spec em um plano técnico detalhado:
+As seguintes questões permanecem abertas e devem ser resolvidas antes de transformar a spec em um plano técnico detalhado:
 
 1. Quais navegadores e versões mínimas serão oficialmente suportados?
-2. Qual é a definição operacional de “conexão típica” para validar a carga inicial inferior a 2 segundos?
-3. Quais campos meteorológicos adicionais, se houver, serão exibidos além dos mínimos desta spec, como umidade, vento, pressão ou precipitação?
-4. Qual regra de arredondamento será usada para temperaturas convertidas?
-5. Qual formato de data e horário será usado quando a fonte fornecer timezone diferente do dispositivo?
-6. Qual o limite máximo de resultados de cidades exibidos em uma busca?
-7. Qual é o texto final das mensagens de erro, ausência de resultados e timeout?
-8. Será permitido persistir localmente a unidade escolhida ou a última cidade, apesar de não haver persistência de servidor?
-9. Qual mecanismo de observabilidade operacional será adotado para acompanhar falhas da fonte pública após o deploy?
-10. Quem será responsável por manutenção, suporte e resposta a indisponibilidade da fonte?
+2. Quais campos meteorológicos adicionais, se houver, serão exibidos além dos mínimos desta spec, como umidade, vento, pressão ou precipitação?
+3. Qual mecanismo de observabilidade operacional será adotado para acompanhar falhas da fonte pública após o deploy?
+4. Quem será responsável por manutenção, suporte e resposta a indisponibilidade da fonte?
