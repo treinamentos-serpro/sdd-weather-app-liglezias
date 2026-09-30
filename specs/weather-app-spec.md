@@ -272,15 +272,18 @@ Como viajante, quero receber uma explicação clara e poder tentar novamente qua
 
 | Caso | Comportamento esperado |
 | --- | --- |
-| Campo de busca vazio ou com espaços | Não realizar chamada; informar que uma cidade deve ser digitada. |
+| Input vazio ou composto apenas por espaços | Não realizar chamada; informar que uma cidade deve ser digitada e manter o foco no campo. |
 | Cidade inexistente | Exibir mensagem de nenhum resultado e manter possibilidade de nova busca. |
-| Texto com caracteres especiais ou acentos | Preservar o texto com segurança, realizar a busca conforme suporte da fonte e informar ausência de resultados quando necessário. |
+| Input com caracteres especiais ou acentos | Preservar o texto com segurança, realizar a busca conforme suporte da fonte e informar ausência de resultados quando necessário. |
 | Busca com muitas correspondências | Exibir resultados suficientes para seleção explícita e informação de localização para diferenciação. |
-| Resposta de geocoding sem resultados | Tratar como estado vazio, não como falha inesperada da interface. |
-| Falha de rede durante geocoding | Exibir erro claro, manter o campo preenchido quando possível e permitir nova tentativa. |
+| Geocoding sem resultados | Tratar como estado vazio, não como falha inesperada da interface; manter o input disponível para nova busca. |
+| Falha de API ou de rede | Exibir erro claro, manter o input preenchido quando possível e permitir nova tentativa sem quebrar a interface. |
 | Timeout na consulta meteorológica | Encerrar o estado de carregamento, informar a falha e oferecer retry. |
 | API indisponível ou com erro HTTP | Não exibir dados incompletos como se fossem atuais; mostrar erro recuperável. |
+| Resposta com JSON inválido ou contrato inesperado | Descartar a resposta inválida, registrar o estado como erro e mostrar mensagem recuperável ao usuário. |
+| Limite de requisições atingido | Informar que o serviço está temporariamente indisponível, evitar retries automáticos agressivos e permitir nova tentativa posterior. |
 | Resposta meteorológica parcial | Exibir apenas dados válidos quando isso não causar ambiguidade; indicar dados indisponíveis nos demais campos. |
+| Resposta sem dados de clima atual | Exibir a cidade e a previsão disponível, indicar que o clima atual está indisponível e não inventar um valor. |
 | Condição meteorológica desconhecida | Exibir uma descrição neutra e não inventar ícone ou texto específico. |
 | Duas cidades com o mesmo nome | Exibir país, região ou coordenadas para permitir seleção consciente. |
 | Nova busca durante uma consulta em andamento | A aplicação deve evitar que a resposta antiga substitua os dados da busca mais recente. |
