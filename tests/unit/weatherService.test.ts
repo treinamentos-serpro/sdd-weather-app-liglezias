@@ -3,6 +3,7 @@ import { getWeather, searchCities, WeatherServiceError } from '../../src/service
 import type { City } from '../../src/types/weather';
 
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllGlobals();
 });
 
@@ -111,6 +112,52 @@ describe('searchCities', () => {
 
     controller.abort();
     expect(requestOptions.signal?.aborted).toBe(true);
+  });
+
+  it('converts AbortError to the timeout message and clears the timer', async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        (_input: RequestInfo | URL, init?: RequestInit) =>
+          new Promise<Response>((_resolve, reject) => {
+            init?.signal?.addEventListener(
+              'abort',
+              () => reject(new DOMException('Aborted', 'AbortError')),
+              { once: true },
+            );
+          }),
+      ),
+    );
+
+    const request = searchCities('Cidade');
+    const timeoutExpectation = expect(request).rejects.toMatchObject({
+      name: 'WeatherServiceError',
+      message: 'A requisição demorou demais.',
+    });
+    await vi.advanceTimersByTimeAsync(10_000);
+    await timeoutExpectation;
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('converts network failures to WeatherServiceError', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('connection lost')));
+
+    await expect(searchCities('Cidade')).rejects.toMatchObject({
+      name: 'WeatherServiceError',
+      message: 'Falha de rede.',
+    });
+  });
+
+  it('clears the timeout after a successful fetch', async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, json: async () => ({ results: [] }) }),
+    );
+
+    await expect(searchCities('Cidade')).resolves.toEqual([]);
+    expect(vi.getTimerCount()).toBe(0);
   });
 });
 

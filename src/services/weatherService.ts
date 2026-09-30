@@ -3,6 +3,7 @@ import type { City, CurrentWeather, ForecastDay, WeatherData } from '../types/we
 
 const GEOCODING_ENDPOINT = 'https://geocoding-api.open-meteo.com/v1/search';
 const FORECAST_ENDPOINT = 'https://api.open-meteo.com/v1/forecast';
+const REQUEST_TIMEOUT_MS = 10_000;
 
 interface GeocodingResult {
   id: number;
@@ -52,6 +53,33 @@ export class WeatherServiceError extends Error {
   }
 }
 
+async function fetchWithTimeout(
+  input: RequestInfo | URL,
+  init: RequestInit = {},
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  try {
+    const signal = init.signal
+      ? AbortSignal.any([init.signal, controller.signal])
+      : controller.signal;
+    return await fetch(input, { ...init, signal });
+  } catch (error) {
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'name' in error &&
+      error.name === 'AbortError'
+    ) {
+      throw new WeatherServiceError('A requisição demorou demais.');
+    }
+    throw new WeatherServiceError('Falha de rede.');
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 function isGeocodingResult(value: unknown): value is GeocodingResult {
   if (typeof value !== 'object' || value === null) return false;
 
@@ -97,9 +125,7 @@ export async function searchCities(name: string, signal?: AbortSignal): Promise<
   const url =
     `${GEOCODING_ENDPOINT}?name=${encodeURIComponent(trimmedName)}` +
     '&count=10&language=pt&format=json';
-  const timeoutSignal = AbortSignal.timeout(10_000);
-  const requestSignal = signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal;
-  const response = await fetch(url, { signal: requestSignal });
+  const response = await fetchWithTimeout(url, { signal });
 
   if (!response.ok) {
     throw new WeatherServiceError('Falha ao buscar cidades.', response.status);
@@ -130,9 +156,7 @@ export async function getWeather(city: City, signal?: AbortSignal): Promise<Weat
     forecast_days: '5',
     temperature_unit: 'celsius',
   });
-  const timeoutSignal = AbortSignal.timeout(10_000);
-  const requestSignal = signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal;
-  const response = await fetch(`${FORECAST_ENDPOINT}?${query}`, { signal: requestSignal });
+  const response = await fetchWithTimeout(`${FORECAST_ENDPOINT}?${query}`, { signal });
 
   if (!response.ok) {
     throw new WeatherServiceError('Falha ao buscar a previsão do tempo.', response.status);
