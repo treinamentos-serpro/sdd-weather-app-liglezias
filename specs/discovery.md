@@ -102,15 +102,22 @@ A unidade selecionada deve ser aplicada de maneira consistente em todas as tempe
 
 ## Riscos
 
-| Risco | Probabilidade | Impacto | Mitigação |
-| --- | --- | --- | --- |
-| Cidades com o mesmo nome levam à seleção do local errado. | Média | Alto | Exibir país, região ou coordenadas nos resultados e exigir seleção explícita. |
-| Falha, limite de uso ou lentidão da fonte meteorológica impede a consulta. | Média | Alto | Implementar estados de carregamento e erro, timeout, retry e mensagens claras. |
-| A fonte retorna dados incompletos ou em formato inesperado. | Média | Alto | Validar a resposta, definir campos obrigatórios e tratar dados ausentes sem quebrar a interface. |
-| A regra de "previsão de cinco dias" é interpretada de formas diferentes. | Média | Médio | Confirmar se o período inclui hoje e registrar a decisão na especificação. |
-| Conversão ou arredondamento inconsistente reduz a confiança nos valores. | Baixa | Médio | Centralizar a conversão e aplicar a mesma regra à condição atual e à previsão. |
-| O volume de informações prejudica a leitura em telas pequenas. | Média | Alto | Adotar layout responsivo mobile-first e validar em diferentes larguras de tela. |
-| Datas, nomes de cidades e condições meteorológicas aparecem em formato inadequado ao público brasileiro. | Média | Médio | Definir idioma, formato de data e regras de localização antes da implementação. |
+| Tipo | Risco | Probabilidade | Impacto | Mitigação |
+| --- | --- | --- | --- | --- |
+| Técnico | A fonte meteorológica fica indisponível, lenta ou sujeita a limite de uso. | Média | Alto | Implementar timeout, estados de carregamento e erro, retry controlado e monitoramento. |
+| Técnico | A fonte retorna dados incompletos, incompatíveis ou em formato inesperado. | Média | Alto | Validar respostas, definir campos obrigatórios e tratar dados ausentes sem quebrar a interface. |
+| Técnico | A aplicação realiza chamadas excessivas durante a busca. | Média | Alto | Usar busca explícita ou debounce, cancelar requisições anteriores e respeitar limites da API. |
+| Técnico | A conversão ou o arredondamento de Celsius para Fahrenheit fica inconsistente. | Baixa | Médio | Centralizar a conversão em uma função testada e reutilizá-la em todas as temperaturas. |
+| Técnico | Falhas de rede ou respostas parciais deixam a interface em estado inconsistente. | Média | Alto | Modelar estados de loading, sucesso, vazio e erro, com retry e preservação da última busca válida. |
+| Técnico | O layout ou a interação não funciona adequadamente em telas pequenas. | Média | Alto | Adotar abordagem mobile-first e validar em diferentes larguras, navegadores e orientações. |
+| Produto | Cidades com o mesmo nome levam à seleção do local errado. | Média | Alto | Exibir país, região ou coordenadas e exigir seleção explícita do resultado. |
+| Produto | A definição de "previsão de cinco dias" não é compreendida de forma única. | Média | Médio | Confirmar se inclui hoje, registrar a regra na spec e refletir a decisão na interface. |
+| Produto | A tela exibe informação demais e dificulta a consulta rápida. | Média | Alto | Priorizar clima atual e previsão, testar com usuários e organizar detalhes por hierarquia visual. |
+| Produto | A busca não atende variações de nomes, acentos ou idiomas dos usuários. | Média | Médio | Definir escopo de localização, normalizar entradas quando possível e exibir mensagens úteis. |
+| Produto | Requisitos adicionais como favoritos, histórico ou geolocalização fazem o escopo crescer. | Alta | Alto | Registrar o que está fora do escopo, priorizar o MVP e exigir decisão antes de incluir novas funções. |
+| Produto | Usuários não confiam nos dados por falta de contexto sobre local, horário ou atualização. | Média | Alto | Exibir cidade selecionada, horário da consulta, unidade e origem ou momento de atualização dos dados. |
+| Produto | A interface não é acessível para pessoas que usam teclado ou tecnologias assistivas. | Média | Alto | Definir critérios de acessibilidade, usar semântica adequada e testar teclado, foco e leitores de tela. |
+| Produto | A aplicação não atende ao idioma, formato de data ou expectativa de unidade do público-alvo. | Média | Médio | Confirmar público e localização prioritários, adotar pt-BR e definir Celsius como padrão provisório. |
 
 ## Perguntas em Aberto
 
