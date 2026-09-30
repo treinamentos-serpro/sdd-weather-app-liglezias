@@ -88,41 +88,41 @@ Os nomes acima são a estrutura-alvo; os arquivos podem ser agrupados apenas qua
 Os contratos internos abaixo são a fonte de verdade entre services, hook e UI. Os campos de temperatura terminados em `C` permanecem em Celsius mesmo quando a UI estiver em Fahrenheit.
 
 ```ts
-type Unit = 'celsius' | 'fahrenheit'
+type Unit = 'celsius' | 'fahrenheit' // unidade exibida ao usuário
 
 interface City {
-  id: number
-  name: string
-  country: string
-  admin1?: string
-  latitude: number
-  longitude: number
-  timezone?: string
+  id: number // identificador estável do resultado de geocoding
+  name: string // nome da cidade
+  country: string // país da cidade
+  admin1?: string // estado, província ou região, quando disponível
+  latitude: number // latitude em graus decimais
+  longitude: number // longitude em graus decimais
+  timezone?: string // fuso horário IANA retornado pela fonte
 }
 
 interface WeatherCondition {
-  code: number
-  label: string
+  code: number // código WMO retornado pela Open-Meteo
+  label: string // descrição em pt-BR para a interface
 }
 
 interface CurrentWeather {
-  time: string
-  temperatureC: number
-  condition: WeatherCondition
+  time: string // timestamp local da cidade em ISO 8601
+  temperatureC: number // temperatura atual em Celsius
+  condition: WeatherCondition // condição meteorológica atual
 }
 
 interface ForecastDay {
-  date: string
-  temperatureMinC: number
-  temperatureMaxC: number
-  condition: WeatherCondition
+  date: string // data local da cidade em YYYY-MM-DD
+  temperatureMinC: number // mínima do dia em Celsius
+  temperatureMaxC: number // máxima do dia em Celsius
+  condition: WeatherCondition // condição predominante do dia
 }
 
 interface WeatherData {
-  city: City
-  timezone: string
-  current: CurrentWeather
-  forecast: ForecastDay[] // exatamente 5 itens no sucesso completo
+  city: City // cidade usada na consulta
+  timezone: string // fuso efetivamente usado pela resposta
+  current: CurrentWeather // dados meteorológicos atuais
+  forecast: ForecastDay[] // cinco dias: hoje + quatro dias
 }
 
 type AsyncStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error'
