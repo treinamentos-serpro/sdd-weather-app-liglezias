@@ -370,6 +370,10 @@ Como viajante, quero receber uma explicação clara e poder tentar novamente qua
 - Usuários terão acesso a um navegador moderno com conexão para consultar dados atualizados.
 - A aplicação poderá exibir estado vazio, erro e loading sem depender de notificações externas.
 - Nenhuma preferência, última cidade ou cache será persistido localmente na primeira versão.
+- O suporte oficial cobrirá as duas versões mais recentes de Chrome, Edge, Firefox e Safari, incluindo suas versões móveis equivalentes.
+- A primeira versão exibirá somente os campos meteorológicos mínimos definidos nos requisitos funcionais.
+- O monitoramento operacional será feito por verificações manuais de disponibilidade e pelo acompanhamento de relatos de erro; não haverá telemetria de usuário.
+- O time responsável pelo produto e pela manutenção do repositório será o owner de suporte e resposta a indisponibilidades.
 
 ## Risks
 
@@ -404,10 +408,4 @@ A primeira versão não incluirá:
 
 ## Open Questions
 
-As seguintes questões permanecem abertas e devem ser resolvidas antes de transformar a spec em um plano técnico detalhado:
-As seguintes questões permanecem abertas e devem ser resolvidas antes de transformar a spec em um plano técnico detalhado:
-
-1. Quais navegadores e versões mínimas serão oficialmente suportados?
-2. Quais campos meteorológicos adicionais, se houver, serão exibidos além dos mínimos desta spec, como umidade, vento, pressão ou precipitação?
-3. Qual mecanismo de observabilidade operacional será adotado para acompanhar falhas da fonte pública após o deploy?
-4. Quem será responsável por manutenção, suporte e resposta a indisponibilidade da fonte?
+Não há questões abertas bloqueantes para o MVP. As decisões pendentes identificadas no discovery foram fechadas pelas premissas acima e poderão ser revisadas em uma versão futura do produto.
