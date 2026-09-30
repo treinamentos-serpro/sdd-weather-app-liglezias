@@ -98,25 +98,37 @@ O sistema deve comunicar os estados relevantes da jornada de consulta.
 
 Como pessoa planejando a rotina, quero buscar minha cidade e ver o clima atual para decidir como me vestir ou me deslocar.
 
+**Requisitos relacionados:** FR-01, FR-02, FR-03.
+
 ### US-02 — Planejamento de viagem
 
 Como viajante, quero consultar a previsão de hoje e dos quatro dias seguintes para planejar minhas atividades.
 
+**Requisitos relacionados:** FR-02, FR-03, FR-04.
+
 ### US-03 — Escolha de cidade homônima
 
-Como usuário que busca uma cidade, quero ver país ou região nos resultados para selecionar o local correto quando houver nomes iguais.
+Como pessoa planejando a rotina, quero ver país ou região nos resultados para selecionar o local correto quando houver cidades com o mesmo nome.
+
+**Requisitos relacionados:** FR-01, FR-02.
 
 ### US-04 — Preferência de unidade
 
 Como usuário com preferência de unidade, quero alternar entre Celsius e Fahrenheit para interpretar as temperaturas sem repetir a busca.
 
+**Requisitos relacionados:** FR-03, FR-04, FR-05.
+
 ### US-05 — Consulta em dispositivo móvel
 
-Como usuário em dispositivo móvel, quero consultar a previsão em uma tela pequena para tomar uma decisão rapidamente fora de casa.
+Como pessoa planejando a rotina, quero consultar a previsão em uma tela pequena para tomar uma decisão rapidamente fora de casa.
+
+**Requisitos relacionados:** FR-01, FR-03, FR-04.
 
 ### US-06 — Recuperação de falha
 
-Como usuário que teve uma consulta interrompida, quero receber uma explicação clara e poder tentar novamente para concluir a consulta sem reiniciar a jornada.
+Como viajante, quero receber uma explicação clara e poder tentar novamente quando uma consulta falhar para concluir meu planejamento sem reiniciar a jornada.
+
+**Requisitos relacionados:** FR-01, FR-02, FR-06.
 
 ## Acceptance Criteria
 
