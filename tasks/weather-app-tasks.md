@@ -2,7 +2,7 @@
 
 Fonte: [plano técnico](../plans/weather-app-plan.md), derivado da [especificação](../specs/weather-app-spec.md).
 
-As tarefas estão organizadas por entrega e em ordem de dependência. Tipos: `UI`, `Data`, `Test` e `Infra`.
+As tarefas estão organizadas por entrega e em ordem de dependência. Os IDs foram preservados para manter a rastreabilidade; a ordem de execução é a ordem apresentada abaixo, não a ordem numérica dos IDs. Tipos: `UI`, `Data`, `Test` e `Infra`.
 
 ## Entrega 1 — Contratos e funções de domínio
 
@@ -22,14 +22,6 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Tipos: `UI
 - **Arquivos prováveis:** `src/lib/temperature.ts`.
 - **Rastreabilidade:** FR-05; RNF8; AC-FR05-01 a AC-FR05-03.
 
-### T-03 — Testar conversão e arredondamento
-- **Tipo:** Test
-- **Descrição:** Cobrir a função de conversão com valores de fronteira e decimais.
-- **Critérios de aceite:** Vitest contém asserts para 0°C, 100°C, -40°C, pelo menos um valor decimal positivo e um negativo; duas conversões para Fahrenheit a partir do mesmo valor Celsius produzem resultado idêntico. (FR-05, AC-FR05-01 a AC-FR05-03)
-- **Dependências:** T-02.
-- **Arquivos prováveis:** `tests/unit/temperature.test.ts`.
-- **Rastreabilidade:** FR-05; AC-FR05-01 a AC-FR05-03.
-
 ### T-04 — Implementar mapeamento de códigos WMO
 - **Tipo:** Data
 - **Descrição:** Mapear códigos WMO para descrições em pt-BR e fallback neutro.
@@ -46,14 +38,6 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Tipos: `UI
 - **Arquivos prováveis:** `src/lib/format.ts`.
 - **Rastreabilidade:** FR-03, FR-04; RNF8; AC-FR03-02, AC-FR04-01.
 
-### T-06 — Testar mapeamento WMO e formatação
-- **Tipo:** Test
-- **Descrição:** Testar códigos meteorológicos e formatação temporal em timezone distinto do ambiente.
-- **Critérios de aceite:** Vitest verifica um código mapeado, um código desconhecido e ao menos um timestamp próximo à mudança de dia em timezone diferente do timezone do processo; os resultados esperados são literais e determinísticos. (FR-03, FR-04; AC-FR03-02, AC-FR04-01)
-- **Dependências:** T-04, T-05.
-- **Arquivos prováveis:** `tests/unit/weatherCodes.test.ts`, `tests/unit/format.test.ts`.
-- **Rastreabilidade:** FR-03, FR-04; RNF8.
-
 ## Entrega 2 — Integração com Open-Meteo
 
 ### T-07 — Implementar service de geocoding
@@ -64,14 +48,6 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Tipos: `UI
 - **Arquivos prováveis:** `src/services/geocodingService.ts`.
 - **Rastreabilidade:** FR-01, FR-02; RNF4, RNF5.
 
-### T-08 — Testar service de geocoding
-- **Tipo:** Test
-- **Descrição:** Testar URL, parâmetros, payload e erros com `fetch` mockado.
-- **Critérios de aceite:** Testes verificam URL/parâmetros, lista de resultados normalizada, ausência de `results`, país/região ausentes, respostas HTTP não-2xx, rejeição de rede, JSON inválido, timeout em 10s e cancelamento; todos usam `fetch` mockado. (FR-01, FR-02; RNF4, RNF5)
-- **Dependências:** T-07.
-- **Arquivos prováveis:** `tests/unit/geocodingService.test.ts`.
-- **Rastreabilidade:** FR-01, FR-02; RNF4, RNF5.
-
 ### T-09 — Implementar service de forecast
 - **Tipo:** Data
 - **Descrição:** Consultar forecast em Celsius e normalizar clima atual e previsão para `WeatherData`.
@@ -79,14 +55,6 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Tipos: `UI
 - **Dependências:** T-01, T-04, T-05.
 - **Arquivos prováveis:** `src/services/weatherService.ts`.
 - **Rastreabilidade:** FR-02–FR-07; RNF4, RNF5, RNF8.
-
-### T-10 — Testar service de forecast
-- **Tipo:** Test
-- **Descrição:** Testar parâmetros, normalização, dados parciais e classificação de erros com `fetch` mockado.
-- **Critérios de aceite:** Fixtures verificam os parâmetros exatos, mapeamento de cinco dias, preservação independente de current/forecast, erro sem seção válida, HTTP 429, outro HTTP não-2xx, rejeição de rede, timeout em 10s, JSON inválido e cancelamento; nenhum teste usa rede real. (FR-03, FR-04, FR-06, FR-07; RNF4)
-- **Dependências:** T-09.
-- **Arquivos prováveis:** `tests/unit/weatherService.test.ts`.
-- **Rastreabilidade:** FR-03, FR-04, FR-06, FR-07; RNF4.
 
 ## Entrega 3 — Estado e orquestração
 
@@ -98,21 +66,13 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Tipos: `UI
 - **Arquivos prováveis:** `src/hooks/useWeather.ts`.
 - **Rastreabilidade:** FR-01, FR-02, FR-05–FR-07; RNF4, RNF8.
 
-### T-12 — Testar estados, retry e concorrência do hook
-- **Tipo:** Test
-- **Descrição:** Testar o hook com services falsos.
-- **Critérios de aceite:** Asserções verificam transições idle/loading/success/empty/error; current válido com forecast inválido e o inverso resultam em success parcial; sem seção válida resulta em error; resposta após abort não altera estado; retry chama forecast novamente para a mesma cidade; alterar unidade não chama service. (FR-01, FR-02, FR-05–FR-07; RNF4, RNF8)
-- **Dependências:** T-11.
-- **Arquivos prováveis:** `tests/unit/useWeather.test.ts`.
-- **Rastreabilidade:** FR-01, FR-02, FR-05–FR-07; RNF4, RNF8.
-
 ## Entrega 4 — Interface responsiva
 
 ### T-13 — Preparar base visual responsiva
 - **Tipo:** UI
 - **Descrição:** Configurar base da tela mobile-first com Tailwind e tema dark glassmorphism.
 - **Critérios de aceite:** Em 320px e em viewport desktop definidos nos testes, busca e conteúdo não se sobrepõem nem causam rolagem horizontal; controles têm foco visível; contraste mede pelo menos 4.5:1 para texto normal e 3:1 para texto grande/componentes. (RNF2, RNF3; US-05)
-- **Dependências:** nenhuma.
+- **Dependências:** T-11.
 - **Arquivos prováveis:** `src/styles/index.css`, `src/App.tsx`.
 - **Rastreabilidade:** RNF2, RNF3; US-05.
 
@@ -123,14 +83,6 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Tipos: `UI
 - **Dependências:** T-13.
 - **Arquivos prováveis:** `src/components/SearchBar.tsx`.
 - **Rastreabilidade:** FR-01, FR-06; RNF1, RNF3, RNF7.
-
-### T-15 — Testar barra de busca
-- **Tipo:** Test
-- **Descrição:** Testar submissão, validação e acessibilidade do campo de busca.
-- **Critérios de aceite:** Vitest confirma uma chamada com query válida/acento; zero chamadas para vazio, espaços e um caractere; campo é localizado por label/role e submetido por teclado. (FR-01; AC-FR01-01, AC-FR01-02, AC-FR01-04; RNF3)
-- **Dependências:** T-14.
-- **Arquivos prováveis:** `tests/unit/SearchBar.test.tsx`.
-- **Rastreabilidade:** FR-01; RNF3.
 
 ### T-16 — Criar resultados e seleção de cidade
 - **Tipo:** UI
@@ -188,6 +140,8 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Tipos: `UI
 - **Arquivos prováveis:** `src/components/UnitToggle.tsx`.
 - **Rastreabilidade:** FR-05; RNF3, RNF8.
 
+## Entrega 5 — Integração da interface
+
 ### T-23 — Compor a jornada na aplicação
 - **Tipo:** UI
 - **Descrição:** Conectar hook e componentes no fluxo buscar → selecionar → consultar.
@@ -196,7 +150,55 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Tipos: `UI
 - **Arquivos prováveis:** `src/App.tsx`.
 - **Rastreabilidade:** FR-01–FR-07; RNF1–RNF8.
 
-## Entrega 5 — Testes de integração e qualidade
+## Entrega 6 — Testes
+
+### T-03 — Testar conversão e arredondamento
+- **Tipo:** Test
+- **Descrição:** Cobrir a função de conversão com valores de fronteira e decimais.
+- **Critérios de aceite:** Vitest contém asserts para 0°C, 100°C, -40°C, pelo menos um valor decimal positivo e um negativo; duas conversões para Fahrenheit a partir do mesmo valor Celsius produzem resultado idêntico. (FR-05, AC-FR05-01 a AC-FR05-03)
+- **Dependências:** T-02.
+- **Arquivos prováveis:** `tests/unit/temperature.test.ts`.
+- **Rastreabilidade:** FR-05; AC-FR05-01 a AC-FR05-03.
+
+### T-06 — Testar mapeamento WMO e formatação
+- **Tipo:** Test
+- **Descrição:** Testar códigos meteorológicos e formatação temporal em timezone distinto do ambiente.
+- **Critérios de aceite:** Vitest verifica um código mapeado, um código desconhecido e ao menos um timestamp próximo à mudança de dia em timezone diferente do timezone do processo; os resultados esperados são literais e determinísticos. (FR-03, FR-04; AC-FR03-02, AC-FR04-01)
+- **Dependências:** T-04, T-05.
+- **Arquivos prováveis:** `tests/unit/weatherCodes.test.ts`, `tests/unit/format.test.ts`.
+- **Rastreabilidade:** FR-03, FR-04; RNF8.
+
+### T-08 — Testar service de geocoding
+- **Tipo:** Test
+- **Descrição:** Testar URL, parâmetros, payload e erros com `fetch` mockado.
+- **Critérios de aceite:** Testes verificam URL/parâmetros, lista de resultados normalizada, ausência de `results`, país/região ausentes, respostas HTTP não-2xx, rejeição de rede, JSON inválido, timeout em 10s e cancelamento; todos usam `fetch` mockado. (FR-01, FR-02; RNF4, RNF5)
+- **Dependências:** T-07.
+- **Arquivos prováveis:** `tests/unit/geocodingService.test.ts`.
+- **Rastreabilidade:** FR-01, FR-02; RNF4, RNF5.
+
+### T-10 — Testar service de forecast
+- **Tipo:** Test
+- **Descrição:** Testar parâmetros, normalização, dados parciais e classificação de erros com `fetch` mockado.
+- **Critérios de aceite:** Fixtures verificam os parâmetros exatos, mapeamento de cinco dias, preservação independente de current/forecast, erro sem seção válida, HTTP 429, outro HTTP não-2xx, rejeição de rede, timeout em 10s, JSON inválido e cancelamento; nenhum teste usa rede real. (FR-03, FR-04, FR-06, FR-07; RNF4)
+- **Dependências:** T-09.
+- **Arquivos prováveis:** `tests/unit/weatherService.test.ts`.
+- **Rastreabilidade:** FR-03, FR-04, FR-06, FR-07; RNF4.
+
+### T-12 — Testar estados, retry e concorrência do hook
+- **Tipo:** Test
+- **Descrição:** Testar o hook com services falsos.
+- **Critérios de aceite:** Asserções verificam transições idle/loading/success/empty/error; current válido com forecast inválido e o inverso resultam em success parcial; sem seção válida resulta em error; resposta após abort não altera estado; retry chama forecast novamente para a mesma cidade; alterar unidade não chama service. (FR-01, FR-02, FR-05–FR-07; RNF4, RNF8)
+- **Dependências:** T-11.
+- **Arquivos prováveis:** `tests/unit/useWeather.test.ts`.
+- **Rastreabilidade:** FR-01, FR-02, FR-05–FR-07; RNF4, RNF8.
+
+### T-15 — Testar barra de busca
+- **Tipo:** Test
+- **Descrição:** Testar submissão, validação e acessibilidade do campo de busca.
+- **Critérios de aceite:** Vitest confirma uma chamada com query válida/acento; zero chamadas para vazio, espaços e um caractere; campo é localizado por label/role e submetido por teclado. (FR-01; AC-FR01-01, AC-FR01-02, AC-FR01-04; RNF3)
+- **Dependências:** T-14.
+- **Arquivos prováveis:** `tests/unit/SearchBar.test.tsx`.
+- **Rastreabilidade:** FR-01; RNF3.
 
 ### T-24 — Testar resultados e seleção de cidade
 - **Tipo:** Test
@@ -269,6 +271,8 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Tipos: `UI
 - **Dependências:** T-23, T-31.
 - **Arquivos prováveis:** `tests/e2e/weather.spec.ts`, fixtures/configuração Playwright se necessário.
 - **Rastreabilidade:** RNF1, RNF2, RNF3; US-05.
+
+## Entrega 7 — Hardening
 
 ### T-33 — Executar quality gates
 - **Tipo:** Infra
