@@ -435,10 +435,14 @@ Services usarão mocks de `fetch`; nenhum teste unitário chamará a API real.
 
 - Busca por role/label, submissão e validação local.
 - Resultados distinguíveis e seleção por teclado.
-- Renderização de clima atual e cinco dias.
+- Renderização de sucesso com clima atual, cidade selecionada e cinco dias.
+- Estado `loading` com indicador acessível e controles coerentes.
+- Estado `error` com mensagem específica e ação de retry quando aplicável.
+- Estado `empty` para busca sem resultados e estado inicial sem dados.
 - Toggle de unidade sem nova chamada de rede.
-- Mensagens e estados de loading, empty e error.
 - Foco visível e nomes acessíveis dos controles principais.
+
+Cada componente de estado deve ser testado isoladamente e também na composição de `App`, verificando que a mudança de estado substitui o conteúdo correto sem exibir dados obsoletos.
 
 ### E2E — Playwright
 
@@ -459,17 +463,17 @@ Antes de considerar uma tarefa concluída: `pnpm lint`, `pnpm build` e `pnpm tes
 
 ## Risks & Trade-offs
 
-| Risco/decisão | Trade-off | Decisão do plano |
-| --- | --- | --- |
-| Dependência da Open-Meteo | Simplicidade e ausência de chave versus disponibilidade externa | Isolar services, validar payloads e oferecer retry manual. |
-| Sem cache ou persistência | Menos complexidade e privacidade melhor versus mais requests | Aceitar no MVP; não implementar cache local. |
-| Estado em hook local | Simplicidade versus menor reutilização entre páginas | Adequado para uma única tela e uma cidade em foco. |
-| Celsius interno + conversão local | Contrato simples versus necessidade de testar conversão | Adotar e cobrir com testes de fronteira. |
-| `timezone=auto` | Datas corretas para a cidade versus dependência da resposta da API | Exigir timezone válido no sucesso; não inventar timezone ausente. |
-| Sem cliente HTTP adicional | Menos dependências versus menos helpers prontos | Usar `fetch` e um pequeno normalizador de erros. |
-| Sem telemetria de usuário | Menor risco de privacidade versus menor visibilidade operacional | Usar mensagens na UI, smoke checks e ownership explícito. |
-| Suporte às duas versões mais recentes | Menor custo de testes versus não cobrir browsers antigos | Validar Chrome, Edge, Firefox e Safari desktop/mobile definidos na spec. |
-| Falha parcial de dados | Evita informação enganosa versus menos conteúdo exibido | Renderizar somente seções completas e sinalizar indisponibilidade. |
+| Risco/decisão | Trade-off | Alternativa considerada | Decisão do plano |
+| --- | --- | --- | --- |
+| Dependência da Open-Meteo | Simplicidade e ausência de chave versus disponibilidade externa | Provedor com API key ou backend proxy | Isolar services, validar payloads e oferecer retry manual. |
+| Sem cache ou persistência | Menos complexidade e privacidade melhor versus mais requests | `localStorage`, service worker ou React Query | Aceitar no MVP; não implementar cache local. |
+| Estado em hook local | Simplicidade versus menor reutilização entre páginas | Redux, Context global ou Zustand | Adequado para uma única tela e uma cidade em foco. |
+| Celsius interno + conversão local | Contrato simples versus necessidade de testar conversão | Solicitar Fahrenheit novamente à API | Adotar e cobrir com testes de fronteira. |
+| `timezone=auto` | Datas corretas para a cidade versus dependência da resposta da API | Usar timezone do dispositivo | Exigir timezone válido no sucesso; não inventar timezone ausente. |
+| Sem cliente HTTP adicional | Menos dependências versus menos helpers prontos | Axios ou cliente de dados completo | Usar `fetch` e um pequeno normalizador de erros. |
+| Sem telemetria de usuário | Menor risco de privacidade versus menor visibilidade operacional | Analytics e error tracking de terceiros | Usar mensagens na UI, smoke checks e ownership explícito. |
+| Suporte às duas versões mais recentes | Menor custo de testes versus não cobrir browsers antigos | Suportar versões antigas com polyfills | Validar Chrome, Edge, Firefox e Safari desktop/mobile definidos na spec. |
+| Falha parcial de dados | Evita informação enganosa versus menos conteúdo exibido | Renderizar cards parcialmente preenchidos | Renderizar somente seções completas e sinalizar indisponibilidade. |
 
 ### Pontos de atenção para o próximo backlog
 
