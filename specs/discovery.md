@@ -78,27 +78,35 @@ O sistema deve comunicar o estado das consultas ao usuário.
 
 ## Requisitos Não-Funcionais
 
-### RNF-01 — Responsividade
+### RNF1 — Performance
 
-A aplicação deve funcionar em dispositivos móveis e em telas maiores, adaptando layout, controles e conteúdo sem perda de legibilidade ou funcionalidade.
+A carga inicial deve ocorrer em menos de 2 segundos em uma conexão típica. A resposta à busca deve ser percebida como instantânea, com feedback visual imediato mesmo quando a API ainda estiver processando a solicitação.
 
-### RNF-02 — Usabilidade
+### RNF2 — Responsividade
+
+A aplicação deve seguir uma abordagem mobile-first e permanecer funcional em larguras a partir de 320px até resoluções desktop, sem perda de legibilidade ou funcionalidade.
+
+### RNF3 — Acessibilidade
+
+A interface deve permitir navegação por teclado, utilizar roles e labels semânticos e manter contraste adequado ao nível básico da WCAG AA.
+
+### RNF4 — Resiliência
+
+Falhas de rede, indisponibilidade da API, respostas inválidas e ausência de resultados não devem causar quebra da aplicação. A interface deve degradar de forma graciosa e oferecer recuperação quando aplicável.
+
+### RNF5 — Sem chave de API
+
+A aplicação deve utilizar uma fonte pública, como a Open-Meteo, sem exigir chave de API no cliente ou no processo de deploy, simplificando a publicação como aplicação estática.
+
+### RNF6 — Observabilidade básica
+
+A aplicação deve apresentar mensagens de erro claras, específicas e compreensíveis ao usuário, indicando o problema e, quando possível, a ação de recuperação.
+
+### RNF7 — Usabilidade
 
 A jornada principal deve ser simples: buscar uma cidade, selecioná-la e visualizar os dados. Os controles e estados da interface devem ser compreensíveis sem instruções externas.
 
-### RNF-03 — Acessibilidade
-
-A interface deve ser utilizável por teclado e por tecnologias assistivas, com rótulos, nomes acessíveis e foco adequado nos campos, resultados, controles e mensagens de estado.
-
-### RNF-04 — Desempenho percebido
-
-A aplicação deve fornecer feedback imediato após ações do usuário e evitar que uma consulta em andamento bloqueie a interação de forma desnecessária.
-
-### RNF-05 — Confiabilidade
-
-Falhas de rede, respostas inválidas e ausência de resultados não devem causar quebra da aplicação. O usuário deve receber uma mensagem adequada e uma forma de recuperar a operação quando aplicável.
-
-### RNF-06 — Consistência dos dados
+### RNF8 — Consistência dos dados
 
 A unidade selecionada deve ser aplicada de maneira consistente em todas as temperaturas exibidas na tela.
 
