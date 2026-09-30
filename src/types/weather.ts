@@ -19,6 +19,10 @@ export interface CurrentWeather {
   time: string;
   temperatureC: number;
   condition: WeatherCondition;
+  humidityPercent?: number;
+  windSpeedKmh?: number;
+  precipitationMm?: number;
+  pressureHpa?: number;
 }
 
 export interface ForecastDay {

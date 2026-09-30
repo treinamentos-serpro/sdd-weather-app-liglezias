@@ -14,6 +14,10 @@ export const mockWeatherData: WeatherData = {
   current: {
     time: '2026-09-30T10:00',
     temperatureC: 22,
+    humidityPercent: 68,
+    windSpeedKmh: 12.5,
+    precipitationMm: 0.2,
+    pressureHpa: 1013,
     condition: {
       code: 2,
       label: 'Parcialmente nublado',
