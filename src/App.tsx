@@ -6,49 +6,12 @@ import EmptyState from './components/states/EmptyState';
 import ErrorState from './components/states/ErrorState';
 import LoadingState from './components/states/LoadingState';
 import UnitToggle from './components/UnitToggle';
-import { mockWeatherData } from './mocks/weather';
-import type { Unit, WeatherState } from './types/weather';
-
-function normalizeCityName(name: string): string {
-  return name
-    .trim()
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .toLocaleLowerCase('pt-BR');
-}
+import useWeather from './hooks/useWeather';
+import type { Unit } from './types/weather';
 
 export default function App() {
   const [unit, setUnit] = useState<Unit>('celsius');
-  const [query, setQuery] = useState('');
-  const [weatherState, setWeatherState] = useState<WeatherState>({ status: 'idle' });
-
-  async function handleSearch(city: string) {
-    setQuery(city);
-    setWeatherState({ status: 'loading' });
-
-    try {
-      await new Promise<void>((resolve) => window.setTimeout(resolve, 180));
-
-      const matchesMock = normalizeCityName(city) === normalizeCityName(mockWeatherData.city.name);
-      if (!matchesMock) {
-        setWeatherState({ status: 'empty', message: 'Nenhuma cidade encontrada.' });
-        return;
-      }
-
-      if (!mockWeatherData.current && !mockWeatherData.forecast?.length) {
-        throw new Error('O mock não contém dados meteorológicos utilizáveis.');
-      }
-
-      setWeatherState({ status: 'success', data: mockWeatherData });
-    } catch {
-      setWeatherState({
-        status: 'error',
-        message: 'Não foi possível carregar os dados de demonstração.',
-      });
-    }
-  }
-
-  const weather = weatherState.data;
+  const { status, data, error, search, retry } = useWeather();
 
   return (
     <div className="min-h-screen bg-night-900 text-white">
@@ -67,7 +30,7 @@ export default function App() {
           </h1>
 
           <div className="min-w-0 flex-1">
-            <SearchBar onSearch={handleSearch} disabled={weatherState.status === 'loading'} />
+            <SearchBar onSearch={(city) => void search(city)} disabled={status === 'loading'} />
           </div>
 
           <UnitToggle unit={unit} onChange={setUnit} />
@@ -76,42 +39,40 @@ export default function App() {
 
       <main id="weather-content" className="px-4 py-8 sm:px-6 sm:py-12">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
-          {weatherState.status === 'idle' && (
+          {status === 'idle' && (
             <EmptyState
               title="Consulte o clima da sua cidade"
-              hint="Busque São Paulo para visualizar os dados de demonstração."
+              hint="Busque uma cidade para consultar o clima atual e a previsão."
             />
           )}
 
-          {weatherState.status === 'loading' && <LoadingState message="Buscando clima..." />}
+          {status === 'loading' && <LoadingState message="Buscando clima..." />}
 
-          {weatherState.status === 'empty' && (
+          {status === 'empty' && (
             <EmptyState
               title="Nenhuma cidade encontrada"
-              hint="Tente buscar São Paulo para abrir os dados de demonstração."
+              hint="Tente outro nome ou confira a grafia da cidade."
             />
           )}
 
-          {weatherState.status === 'error' && (
+          {status === 'error' && (
             <ErrorState
-              message={weatherState.message ?? 'Ocorreu um erro inesperado.'}
-              onRetry={() => {
-                void handleSearch(query);
-              }}
+              message={error ?? 'Ocorreu um erro inesperado.'}
+              onRetry={() => void retry()}
             />
           )}
 
-          {weatherState.status === 'success' && weather && (
+          {status === 'success' && data && (
             <>
-              {weather.current ? (
-                <CurrentWeather city={weather.city} current={weather.current} unit={unit} />
+              {data.current ? (
+                <CurrentWeather city={data.city} current={data.current} unit={unit} />
               ) : (
                 <p role="status" className="text-sm text-white/70">
                   Clima atual indisponível.
                 </p>
               )}
-              {weather.forecast ? (
-                <ForecastList forecast={weather.forecast} unit={unit} />
+              {data.forecast ? (
+                <ForecastList forecast={data.forecast} unit={unit} />
               ) : (
                 <p role="status" className="text-sm text-white/70">
                   Previsão indisponível.
