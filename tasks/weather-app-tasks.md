@@ -187,7 +187,7 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Os IDs for
 ### T-12 — Testar estados, retry e concorrência do hook
 - **Tipo:** Test
 - **Descrição:** Testar o hook com services falsos.
-- **Critérios de aceite:** Asserções verificam transições idle/loading/success/empty/error; current válido com forecast inválido e o inverso resultam em success parcial; sem seção válida resulta em error; resposta após abort não altera estado; retry chama forecast novamente para a mesma cidade; alterar unidade não chama service. (FR-01, FR-02, FR-05–FR-07; RNF4, RNF8)
+- **Critérios de aceite:** Asserções verificam transições idle/loading/success/empty/error; current válido com forecast inválido e o inverso resultam em success parcial; sem seção válida resulta em error; selecionar uma cidade invoca forecast exatamente uma vez; resposta após abort não altera estado; retry chama forecast novamente para a mesma cidade; alterar unidade não chama service. (FR-01, FR-02, FR-05–FR-07; RNF4, RNF8)
 - **Dependências:** T-11.
 - **Arquivos prováveis:** `tests/unit/useWeather.test.ts`.
 - **Rastreabilidade:** FR-01, FR-02, FR-05–FR-07; RNF4, RNF8.
@@ -284,12 +284,14 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Os IDs for
 
 ## Rastreabilidade — Requisitos funcionais
 
-| Requisito | Tarefas |
-| --- | --- |
-| FR-01 — Buscar cidades | T-07, T-08, T-11, T-14, T-15, T-17, T-18, T-23, T-24, T-25, T-26, T-31 |
-| FR-02 — Selecionar cidade | T-07, T-08, T-09, T-11, T-16, T-23, T-24, T-31 |
-| FR-03 — Exibir clima atual | T-05, T-09, T-10, T-20, T-23, T-28, T-31 |
-| FR-04 — Exibir previsão | T-05, T-09, T-10, T-21, T-23, T-29, T-31 |
-| FR-05 — Alternar unidade | T-02, T-03, T-11, T-20, T-21, T-22, T-23, T-28, T-29, T-30, T-31 |
-| FR-06 — Comunicar estados | T-07, T-08, T-09, T-10, T-11, T-12, T-17, T-18, T-19, T-23, T-25, T-26, T-27, T-31 |
-| FR-07 — Tentar novamente | T-09, T-10, T-11, T-12, T-19, T-23, T-27, T-31 |
+| Requisito | Tarefas de implementação | Tarefas de teste |
+| --- | --- | --- |
+| FR-01 — Buscar cidades | T-01, T-07, T-11, T-13, T-14, T-17, T-18, T-23 | T-08, T-12, T-15, T-25, T-26, T-31, T-32 |
+| FR-02 — Selecionar cidade | T-01, T-07, T-09, T-11, T-16, T-23 | T-08, T-10, T-12, T-24, T-31 |
+| FR-03 — Exibir clima atual | T-04, T-05, T-09, T-20, T-23 | T-06, T-10, T-28, T-31 |
+| FR-04 — Exibir previsão | T-04, T-05, T-09, T-21, T-23 | T-06, T-10, T-29, T-31 |
+| FR-05 — Alternar unidade | T-02, T-11, T-20, T-21, T-22, T-23 | T-03, T-12, T-28, T-29, T-30, T-31 |
+| FR-06 — Comunicar estados | T-07, T-09, T-11, T-17, T-18, T-19, T-23 | T-08, T-10, T-12, T-25, T-26, T-27, T-31 |
+| FR-07 — Tentar novamente | T-09, T-11, T-19, T-23 | T-10, T-12, T-27, T-31 |
+
+Todos os requisitos funcionais FR-01 a FR-07 têm ao menos uma tarefa de implementação e uma tarefa de teste correspondente.
