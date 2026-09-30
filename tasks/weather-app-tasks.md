@@ -144,11 +144,27 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Os IDs for
 
 ### T-23 — Compor a jornada na aplicação
 - **Tipo:** UI
-- **Descrição:** Conectar hook e componentes no fluxo buscar → selecionar → consultar.
-- **Critérios de aceite:** Uma jornada de busca e seleção exibe dados da cidade selecionada; loading/empty/error/success usam suas apresentações correspondentes; resposta parcial exibe seção válida mais aviso; resposta abortada não substitui resultado atual; somente uma cidade é exibida por vez. (FR-01–FR-07; RNF1–RNF8)
-- **Dependências:** T-11, T-14, T-16, T-17, T-18, T-19, T-20, T-21, T-22.
+- **Descrição:** Conectar hook e componentes no fluxo buscar → selecionar → consultar clima atual.
+- **Critérios de aceite:** Uma busca e seleção exibem clima atual da cidade escolhida; loading/empty/error/success usam suas apresentações correspondentes; resposta parcial exibe a seção current válida e avisa quando ela estiver indisponível; resposta abortada não substitui resultado atual; somente uma cidade é exibida por vez. (FR-01, FR-02, FR-03, FR-06, FR-07; RNF1–RNF8)
+- **Dependências:** T-11, T-14, T-16, T-17, T-18, T-19, T-20.
 - **Arquivos prováveis:** `src/App.tsx`.
-- **Rastreabilidade:** FR-01–FR-07; RNF1–RNF8.
+- **Rastreabilidade:** FR-01, FR-02, FR-03, FR-06, FR-07; RNF1–RNF8.
+
+### T-34 — Integrar previsão de cinco dias à tela
+- **Tipo:** UI
+- **Descrição:** Adicionar a previsão diária à tela já composta com clima atual.
+- **Critérios de aceite:** Ao receber cinco dias válidos, a aplicação exibe-os em ordem cronológica; uma previsão incompleta não é apresentada como completa; a lista permanece associada à cidade selecionada. (FR-04; AC-FR04-01, AC-FR04-02; RNF2, RNF8)
+- **Dependências:** T-21, T-23.
+- **Arquivos prováveis:** `src/App.tsx`.
+- **Rastreabilidade:** FR-04; RNF2, RNF8.
+
+### T-35 — Integrar alternância de unidade à tela
+- **Tipo:** UI
+- **Descrição:** Conectar o toggle à apresentação do clima atual e da previsão.
+- **Critérios de aceite:** Celsius é selecionado inicialmente; alternar para Fahrenheit e voltar atualiza todas as temperaturas atuais e diárias; nenhuma troca chama o service meteorológico. (FR-05; AC-FR05-01 a AC-FR05-03; RNF3, RNF8)
+- **Dependências:** T-22, T-23, T-34.
+- **Arquivos prováveis:** `src/App.tsx`.
+- **Rastreabilidade:** FR-05; RNF3, RNF8.
 
 ## Entrega 6 — Testes
 
@@ -260,7 +276,7 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Os IDs for
 - **Tipo:** Test
 - **Descrição:** Testar jornadas completas no browser usando interceptação Playwright.
 - **Critérios de aceite:** Playwright completa o fluxo busca→seleção→clima atual+5 dias em viewport desktop e mobile de 320px; também passa cenários para sem resultados, cidades homônimas, C/F sem segundo request forecast, falha+retry e retry com nova falha; respostas vêm de `page.route` e nenhuma requisição externa ocorre. (FR-01–FR-07; RNF2; US-01–US-06)
-- **Dependências:** T-23.
+- **Dependências:** T-35.
 - **Arquivos prováveis:** `tests/e2e/weather.spec.ts`.
 - **Rastreabilidade:** FR-01–FR-07; US-01–US-06.
 
@@ -268,7 +284,7 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Os IDs for
 - **Tipo:** Test
 - **Descrição:** Verificar viewport mínimo, teclado, contraste e limites de desempenho.
 - **Critérios de aceite:** Em viewport 320px e desktop, não há rolagem horizontal nem sobreposição na jornada; teclado alcança os controles e mantém foco visível; auditoria mede contraste ≥4.5:1 para texto normal e ≥3:1 para texto grande/componentes; com cache frio, perfil móvel intermediário e 4G simulado, interface inicial utilizável <2s; ação→feedback ≤100ms. (RNF1, RNF2, RNF3; US-05)
-- **Dependências:** T-23, T-31.
+- **Dependências:** T-35, T-31.
 - **Arquivos prováveis:** `tests/e2e/weather.spec.ts`, fixtures/configuração Playwright se necessário.
 - **Rastreabilidade:** RNF1, RNF2, RNF3; US-05.
 
@@ -278,7 +294,7 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Os IDs for
 - **Tipo:** Infra
 - **Descrição:** Executar verificações finais do repositório após integração.
 - **Critérios de aceite:** Os comandos `pnpm lint`, `pnpm build` e `pnpm test` terminam com código 0; `pnpm test:e2e` termina com código 0 quando os browsers Playwright estiverem instalados; falhas são registradas e resolvidas antes da conclusão. (Quality gates do projeto; todos os FRs)
-- **Dependências:** T-03, T-06, T-08, T-10, T-12, T-24, T-25, T-26, T-27, T-28, T-29, T-30, T-31, T-32.
+- **Dependências:** T-03, T-06, T-08, T-10, T-12, T-24, T-25, T-26, T-27, T-28, T-29, T-30, T-31, T-32, T-34, T-35.
 - **Arquivos prováveis:** Nenhum; configurações existentes somente se um gate exigir ajuste.
 - **Rastreabilidade:** Requisitos funcionais e não funcionais do backlog.
 
@@ -289,9 +305,64 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Os IDs for
 | FR-01 — Buscar cidades | T-01, T-07, T-11, T-13, T-14, T-17, T-18, T-23 | T-08, T-12, T-15, T-25, T-26, T-31, T-32 |
 | FR-02 — Selecionar cidade | T-01, T-07, T-09, T-11, T-16, T-23 | T-08, T-10, T-12, T-24, T-31 |
 | FR-03 — Exibir clima atual | T-04, T-05, T-09, T-20, T-23 | T-06, T-10, T-28, T-31 |
-| FR-04 — Exibir previsão | T-04, T-05, T-09, T-21, T-23 | T-06, T-10, T-29, T-31 |
-| FR-05 — Alternar unidade | T-02, T-11, T-20, T-21, T-22, T-23 | T-03, T-12, T-28, T-29, T-30, T-31 |
+| FR-04 — Exibir previsão | T-04, T-05, T-09, T-21, T-34 | T-06, T-10, T-29, T-31 |
+| FR-05 — Alternar unidade | T-02, T-11, T-20, T-21, T-22, T-35 | T-03, T-12, T-28, T-29, T-30, T-31 |
 | FR-06 — Comunicar estados | T-07, T-09, T-11, T-17, T-18, T-19, T-23 | T-08, T-10, T-12, T-25, T-26, T-27, T-31 |
 | FR-07 — Tentar novamente | T-09, T-11, T-19, T-23 | T-10, T-12, T-27, T-31 |
 
 Todos os requisitos funcionais FR-01 a FR-07 têm ao menos uma tarefa de implementação e uma tarefa de teste correspondente.
+
+## Prioridade e tamanho
+
+**Prioridade:** `P0` bloqueia a entrega funcional ou um gate obrigatório; `P1` aumenta confiança e deve vir após a primeira fatia; `P2` é cobertura complementar que pode ser concluída depois do caminho principal.
+
+**Tamanho relativo:** `P` pequeno (até meio dia), `M` médio (cerca de 1 dia), `G` grande (mais de 1 dia ou alta incerteza). É estimativa comparativa, não compromisso de prazo.
+
+| Tarefa | Prioridade | Tamanho |
+| --- | --- | --- |
+| T-01 | P0 | M |
+| T-02 | P0 | M |
+| T-03 | P1 | P |
+| T-04 | P0 | M |
+| T-05 | P0 | M |
+| T-06 | P1 | M |
+| T-07 | P0 | M |
+| T-08 | P0 | M |
+| T-09 | P0 | G |
+| T-10 | P0 | G |
+| T-11 | P0 | G |
+| T-12 | P0 | M |
+| T-13 | P0 | M |
+| T-14 | P0 | M |
+| T-15 | P1 | P |
+| T-16 | P0 | M |
+| T-17 | P0 | P |
+| T-18 | P0 | P |
+| T-19 | P0 | P |
+| T-20 | P0 | M |
+| T-21 | P0 | M |
+| T-22 | P0 | P |
+| T-23 | P0 | M |
+| T-24 | P2 | P |
+| T-25 | P2 | P |
+| T-26 | P2 | P |
+| T-27 | P2 | P |
+| T-28 | P2 | P |
+| T-29 | P2 | M |
+| T-30 | P1 | P |
+| T-31 | P0 | G |
+| T-32 | P0 | G |
+| T-33 | P0 | M |
+| T-34 | P0 | M |
+| T-35 | P0 | M |
+
+## Sequência de fatias verticais
+
+Cada fatia atravessa dados, estado e UI e termina em comportamento visível. Os testes unitários/de service correspondentes acompanham a implementação; a auditoria ampla fica para a fatia de hardening.
+
+| Ordem | Fatia e resultado visível | Tarefas na sequência |
+| --- | --- | --- |
+| 1 | **Consultar clima atual:** buscar cidade, selecionar resultado e ver clima atual com loading, vazio e erro tratados. É a primeira demonstração utilizável. | T-01 → T-02 → T-04 → T-05 → T-07 → T-08 → T-09 → T-10 → T-11 → T-13 → T-14 → T-16 → T-17 → T-18 → T-19 → T-20 → T-23 |
+| 2 | **Planejar os próximos dias:** adicionar previsão diária completa à tela sem misturar cidades. | T-21 → T-34 → T-29 |
+| 3 | **Escolher unidade:** alternar Celsius/Fahrenheit em clima atual e previsão sem novo request. | T-22 → T-35 → T-30 |
+| 4 | **Fechar qualidade de entrega:** completar testes unitários pendentes, validar fluxo mobile/E2E, concorrência, teclado, contraste e performance; concluir gates. | T-03 → T-06 → T-12 → T-15 → T-24 → T-25 → T-26 → T-27 → T-28 → T-31 → T-32 → T-33 |
