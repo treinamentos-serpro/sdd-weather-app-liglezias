@@ -325,7 +325,19 @@ O normalizador deve rejeitar respostas sem `current`, `daily`, `timezone` ou sem
 
 ## State Management
 
-O estado viverá no hook `useWeather`, usado por `App` e distribuído por props. Não haverá store global.
+O estado viverá no hook `useWeather`, usado por `App` e distribuído por props. Não haverá store global. O hook manterá separadamente o estado da busca de cidades e o estado do forecast, pois uma busca pode estar vazia enquanto o clima anterior ainda está visível.
+
+```ts
+interface WeatherViewModel {
+  search: SearchState
+  weather: WeatherState
+  unit: Unit
+  selectUnit: (unit: Unit) => void
+  searchCities: (query: string) => Promise<void>
+  selectCity: (city: City) => Promise<void>
+  retryWeather: () => Promise<void>
+}
+```
 
 ### Estado de busca
 
@@ -345,13 +357,48 @@ O estado viverá no hook `useWeather`, usado por `App` e distribuído por props.
 
 ### Unidade
 
-`unit` começa em `'celsius'` e é mantida no estado local de `App` ou do hook. `selectUnit` apenas altera a unidade de apresentação; não chama services e não altera `WeatherData`.
+`unit` começa em `'celsius'` e é mantida no estado local do hook. `selectUnit` apenas altera a unidade de apresentação; não chama services e não altera `WeatherData`.
+
+Na renderização, componentes recebem valores derivados de `WeatherData`:
+
+```text
+temperatureDisplay = unit === 'celsius'
+  ? round(current.temperatureC)
+  : round(toFahrenheit(current.temperatureC))
+```
+
+O mesmo cálculo é aplicado a `temperatureMinC` e `temperatureMaxC` de cada `ForecastDay`. A conversão nunca substitui os valores Celsius armazenados, portanto alternar várias vezes não acumula erro e não dispara novo request.
+
+### Transições permitidas
+
+| Operação | Estado inicial | Estado seguinte |
+| --- | --- | --- |
+| Abrir aplicação | `search.idle`, `weather.idle` | mantém estado inicial |
+| Buscar cidade válida | `search.idle` ou qualquer estado | `search.loading` → `search.success` ou `search.empty`/`search.error` |
+| Selecionar cidade | `search.success` | `weather.loading` → `weather.success` ou `weather.error` |
+| Alternar unidade | qualquer estado | mesmo status; somente `unit` muda |
+| Retry de forecast | `weather.error` | `weather.loading` → `weather.success` ou `weather.error` |
+| Nova busca | qualquer estado | cancela operação anterior e inicia `search.loading` |
 
 ### Concorrência
 
 Cada nova busca cancela a requisição anterior quando possível e recebe um identificador de operação. Uma resposta cujo identificador não seja o atual deve ser ignorada.
 
 ## Error Handling
+
+### Classificação interna
+
+```ts
+type WeatherErrorKind =
+  | 'network'
+  | 'timeout'
+  | 'http'
+  | 'rate_limit'
+  | 'invalid_payload'
+  | 'partial_data'
+```
+
+Os services convertem falhas externas em `WeatherErrorKind`; componentes não tratam exceções de `fetch` diretamente. Input vazio, input curto e geocoding sem resultados são estados de validação/domínio, não falhas técnicas.
 
 | Situação | Estado | Mensagem/ação | Dados preservados |
 | --- | --- | --- | --- |
@@ -362,7 +409,7 @@ Cada nova busca cancela a requisição anterior quando possível e recebe um ide
 | Timeout ou falha de rede | `weather.error` | “Não foi possível carregar o clima. Tente novamente.” | cidade |
 | HTTP 429 ou indisponibilidade | `weather.error` | serviço temporariamente indisponível; retry manual | cidade |
 | JSON inválido/contrato inesperado | `weather.error` | dados indisponíveis; não renderizar payload parcial | cidade |
-| Dados parciais | `weather.error` ou seção indisponível | informar quais dados não estão disponíveis | seções completas |
+| Dados parciais | `weather.error` | informar dados indisponíveis; não renderizar card incompleto | cidade e seções completas |
 | Retry com sucesso | `weather.success` | atualizar dados | cidade |
 | Retry com nova falha | `weather.error` | manter retry disponível | cidade |
 
