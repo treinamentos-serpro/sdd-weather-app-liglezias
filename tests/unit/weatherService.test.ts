@@ -1,9 +1,23 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { searchCities, WeatherServiceError } from '../../src/services/weatherService';
+import { getWeather, searchCities, WeatherServiceError } from '../../src/services/weatherService';
+import type { City } from '../../src/types/weather';
 
 afterEach(() => {
   vi.unstubAllGlobals();
 });
+
+const city: City = {
+  id: 3448439,
+  name: 'São Paulo',
+  country: 'Brasil',
+  latitude: -23.55,
+  longitude: -46.63,
+  timezone: 'America/Sao_Paulo',
+};
+
+function createForecastPayload(current: unknown, daily: unknown): Record<string, unknown> {
+  return { timezone: 'America/Sao_Paulo', current, daily };
+}
 
 describe('searchCities', () => {
   it('returns an empty list without calling the network for blank input', async () => {
@@ -97,5 +111,92 @@ describe('searchCities', () => {
 
     controller.abort();
     expect(requestOptions.signal?.aborted).toBe(true);
+  });
+});
+
+describe('getWeather', () => {
+  it('requests current and daily data and maps parallel arrays to five forecast days', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () =>
+        createForecastPayload(
+          {
+            time: '2026-09-30T10:00',
+            temperature_2m: 22,
+            relative_humidity_2m: 68,
+            wind_speed_10m: 12.5,
+            precipitation: 0.2,
+            surface_pressure: 1013,
+            weather_code: 2,
+          },
+          {
+            time: ['2026-09-30', '2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04'],
+            temperature_2m_min: [16, 17, 18, 17, 16],
+            temperature_2m_max: [25, 26, 27, 24, 23],
+            precipitation_probability_max: [15, 25, 70, 10, 45],
+            weather_code: [2, 3, 61, 1, 80],
+          },
+        ),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await getWeather(city);
+
+    const requestUrl = new URL(String(fetchMock.mock.calls[0]?.[0]));
+    expect(requestUrl.origin + requestUrl.pathname).toBe('https://api.open-meteo.com/v1/forecast');
+    expect(requestUrl.searchParams.get('latitude')).toBe(String(city.latitude));
+    expect(requestUrl.searchParams.get('longitude')).toBe(String(city.longitude));
+    expect(requestUrl.searchParams.get('timezone')).toBe('auto');
+    expect(requestUrl.searchParams.get('forecast_days')).toBe('5');
+    expect(requestUrl.searchParams.get('temperature_unit')).toBe('celsius');
+    expect(requestUrl.searchParams.get('current')).toContain('temperature_2m');
+    expect(requestUrl.searchParams.get('daily')).toContain('temperature_2m_min');
+
+    expect(result.city).toEqual(city);
+    expect(result.current).toMatchObject({
+      time: '2026-09-30T10:00',
+      temperatureC: 22,
+      humidityPercent: 68,
+      windSpeedKmh: 12.5,
+      precipitationMm: 0.2,
+      pressureHpa: 1013,
+      condition: { code: 2, label: 'Parcialmente nublado' },
+    });
+    expect(result.forecast).toHaveLength(5);
+    expect(result.forecast?.[2]).toEqual({
+      date: '2026-10-02',
+      temperatureMinC: 18,
+      temperatureMaxC: 27,
+      precipitationProbabilityPercent: 70,
+      condition: { code: 61, label: 'Chuva fraca' },
+    });
+  });
+
+  it.each([
+    'current',
+    'daily',
+  ] as const)('throws WeatherServiceError when %s is absent', async (missingSection) => {
+    const payload = createForecastPayload(
+      { time: '2026-09-30T10:00', temperature_2m: 22, weather_code: 2 },
+      {
+        time: ['2026-09-30', '2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04'],
+        temperature_2m_min: [16, 17, 18, 17, 16],
+        temperature_2m_max: [25, 26, 27, 24, 23],
+        weather_code: [2, 3, 61, 1, 80],
+      },
+    );
+    payload[missingSection] = undefined;
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => payload }));
+
+    await expect(getWeather(city)).rejects.toBeInstanceOf(WeatherServiceError);
+  });
+
+  it('throws WeatherServiceError when the forecast response is not ok', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 502 }));
+
+    await expect(getWeather(city)).rejects.toMatchObject({
+      name: 'WeatherServiceError',
+      status: 502,
+    });
   });
 });
