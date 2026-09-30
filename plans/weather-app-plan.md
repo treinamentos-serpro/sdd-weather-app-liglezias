@@ -186,25 +186,47 @@ interface WeatherService {
 ## Data Flow
 
 ```mermaid
-flowchart LR
-  A[Usuário informa cidade] --> B[SearchBar]
-  B --> C{Validação local}
-  C -->|válido| D[useWeather.searchCities]
-  C -->|vazio ou curto| E[Mensagem de input]
-  D --> F[geocodingService]
-  F --> G[Open-Meteo Geocoding]
-  G --> H[City[] normalizado]
-  H --> I[Lista de resultados]
-  I --> J[Usuário seleciona City]
-  J --> K[useWeather.loadWeather]
-  K --> L[weatherService]
-  L --> M[Open-Meteo Forecast]
-  M --> N[WeatherData normalizado]
-  N --> O[Estado success]
-  O --> P[CurrentWeather + ForecastList]
-  O --> Q[UnitToggle]
-  Q --> R[Conversão local C/F]
-  K --> S[loading / error / retry]
+flowchart TB
+  A[Digitar cidade] --> B{Input válido?}
+  B -->|Não| C[UI: corrigir busca]
+  B -->|Sim| D[Hook: busca loading]
+  D --> E[Service: geocoding]
+  E --> F[Open-Meteo: geocoding]
+  F --> G{Resultados?}
+
+  G -->|Nenhum| H[Hook: search empty]
+  H --> I[UI: nenhum resultado]
+
+  G -->|Falha| J[Hook: search error]
+  J --> K[UI: erro na busca]
+
+  G -->|Encontrados| L[Lista de cidades]
+  L --> M[Selecionar cidade]
+  M --> N[Hook: forecast loading]
+  N --> O[Service: forecast]
+  O --> P[Open-Meteo: forecast]
+  P --> Q{Dados completos?}
+
+  Q -->|API ou rede falhou| R[Hook: weather error]
+  R --> S[UI: erro e retry]
+  S -->|Tentar novamente| N
+
+  Q -->|Resposta parcial| T[UI: dados indisponíveis]
+
+  Q -->|Sim| U[Hook: weather success]
+  U --> V{Unidade?}
+  V -->|Celsius| W[UI: clima e previsão em C]
+  V -->|Fahrenheit| X[Conversão local C para F]
+  X --> Y[UI: clima e previsão em F]
+
+  classDef process fill:#e7f0ff,stroke:#315b8a,color:#14283f
+  classDef decision fill:#fff2cc,stroke:#9a7415,color:#342800
+  classDef success fill:#e4f4e8,stroke:#38834a,color:#16361e
+  classDef issue fill:#fde8e7,stroke:#b5423b,color:#4a1714
+  class D,E,F,L,M,N,O,P process
+  class B,G,Q,V decision
+  class U,W,Y success
+  class C,H,I,J,K,R,S,T issue
 ```
 
 ### Sequência principal
