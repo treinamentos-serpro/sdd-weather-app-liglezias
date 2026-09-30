@@ -9,7 +9,7 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Os IDs for
 ### T-01 — Definir contratos compartilhados e mock de UI
 - **Tipo:** Data
 - **Descrição:** Definir os contratos compartilhados e fornecer `mockWeatherData` estático para desenvolver a UI sem API.
-- **Critérios de aceite:** `pnpm build` compila os contratos com TypeScript strict; `City.country`, `WeatherData.current` e `WeatherData.forecast` aceitam ausência; quando presente, `forecast` aceita cinco `ForecastDay`; o mock exportado contém cidade, timezone, clima atual e cinco dias consecutivos, não importa services e não faz chamadas de rede. (FR-01–FR-07, RNF4, RNF8)
+- **Critérios de aceite:** `pnpm build` compila os contratos com TypeScript strict; `City.country`, `WeatherData.current` e `WeatherData.forecast` aceitam ausência; quando presente, `forecast` aceita cinco `ForecastDay` e cada dia pode omitir `precipitationProbabilityPercent`; o mock exportado contém cidade, timezone, clima atual e cinco dias consecutivos, não importa services e não faz chamadas de rede. (FR-01–FR-07, RNF4, RNF8)
 - **Dependências:** nenhuma.
 - **Arquivos prováveis:** `src/types/weather.ts`, `src/mocks/weather.ts`.
 - **Rastreabilidade:** FR-01–FR-07; RNF4, RNF8.
@@ -51,7 +51,7 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Os IDs for
 ### T-09 — Implementar service de forecast
 - **Tipo:** Data
 - **Descrição:** Consultar forecast em Celsius e normalizar clima atual e previsão para `WeatherData`.
-- **Critérios de aceite:** Request envia coordenadas da cidade e `current`, `daily`, `timezone=auto`, `forecast_days=5`, `temperature_unit=celsius`; normaliza arrays diários de cinco posições; mantém `current` válido se `daily` for inválido e vice-versa; rejeita resultado sem nenhuma seção utilizável ou timezone; timeout é 10s e signal abortado cancela o request. (FR-02–FR-07; RNF4, RNF5, RNF8)
+- **Critérios de aceite:** Request envia coordenadas da cidade e `current`, `daily` com `precipitation_probability_max`, `timezone=auto`, `forecast_days=5`, `temperature_unit=celsius`; normaliza arrays diários de cinco posições e mapeia a probabilidade como opcional; mantém `current` válido se `daily` for inválido e vice-versa; rejeita resultado sem nenhuma seção utilizável ou timezone; timeout é 10s e signal abortado cancela o request. (FR-02–FR-07; RNF4, RNF5, RNF8)
 - **Dependências:** T-01, T-04, T-05.
 - **Arquivos prováveis:** `src/services/weatherService.ts`.
 - **Rastreabilidade:** FR-02–FR-07; RNF4, RNF5, RNF8.
@@ -127,7 +127,7 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Os IDs for
 ### T-21 — Criar exibição da previsão diária
 - **Tipo:** UI
 - **Descrição:** Criar lista e cards para a previsão dos cinco dias.
-- **Critérios de aceite:** Com cinco itens válidos, renderiza cinco cards na mesma ordem das datas; cada card contém data, condição, mínima, máxima e unidade; com menos de cinco dias, não apresenta a lista como previsão completa. (FR-04, FR-05; AC-FR04-01, AC-FR04-02, AC-FR05-01; RNF2, RNF8)
+- **Critérios de aceite:** Com cinco itens válidos, renderiza cinco cards na mesma ordem das datas; cada card contém rótulo/data, ícone, condição, mínima, máxima, unidade e probabilidade de chuva (ou `—` quando ausente); com menos de cinco dias, não apresenta a lista como previsão completa. (FR-04, FR-05; AC-FR04-01, AC-FR04-02, AC-FR05-01; RNF2, RNF8)
 - **Dependências:** T-01, T-02, T-04, T-05, T-13.
 - **Arquivos prováveis:** `src/components/ForecastList.tsx`, `src/components/ForecastCard.tsx`.
 - **Rastreabilidade:** FR-04, FR-05; RNF2, RNF3, RNF8.
@@ -195,7 +195,7 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Os IDs for
 ### T-10 — Testar service de forecast
 - **Tipo:** Test
 - **Descrição:** Testar parâmetros, normalização, dados parciais e classificação de erros com `fetch` mockado.
-- **Critérios de aceite:** Fixtures verificam os parâmetros exatos, mapeamento de cinco dias, preservação independente de current/forecast, erro sem seção válida, HTTP 429, outro HTTP não-2xx, rejeição de rede, timeout em 10s, JSON inválido e cancelamento; nenhum teste usa rede real. (FR-03, FR-04, FR-06, FR-07; RNF4)
+- **Critérios de aceite:** Fixtures verificam `precipitation_probability_max`, o mapeamento para porcentagem nos cinco dias e o campo ausente sem valor inventado; também cobrem preservação independente de current/forecast, erro sem seção válida, HTTP 429, HTTP não-2xx, rede, timeout de 10s, JSON inválido e cancelamento; nenhum teste usa rede real. (FR-03, FR-04, FR-06, FR-07; RNF4)
 - **Dependências:** T-09.
 - **Arquivos prováveis:** `tests/unit/weatherService.test.ts`.
 - **Rastreabilidade:** FR-03, FR-04, FR-06, FR-07; RNF4.
@@ -259,7 +259,7 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Os IDs for
 ### T-29 — Testar exibição da previsão diária
 - **Tipo:** Test
 - **Descrição:** Testar `ForecastList` e `ForecastCard` com cinco dias e com forecast incompleto.
-- **Critérios de aceite:** Com fixture de cinco dias, renderiza cinco cards em ordem e cada card mostra dia, condição, mínima, máxima e unidade; com fixture de quatro dias não renderiza cinco dias nem declara previsão completa. (FR-04, FR-05; AC-FR04-01, AC-FR04-02, AC-FR05-01)
+- **Critérios de aceite:** Com fixture de cinco dias, renderiza cinco cards em ordem e cada card mostra dia, ícone, condição, mínima, máxima, unidade e probabilidade de chuva; quando o campo de probabilidade faltar, mostra `—`; com fixture de quatro dias não declara previsão completa. (FR-04, FR-05; AC-FR04-01, AC-FR04-02, AC-FR05-01)
 - **Dependências:** T-21.
 - **Arquivos prováveis:** `tests/unit/ForecastList.test.tsx`, `tests/unit/ForecastCard.test.tsx`.
 - **Rastreabilidade:** FR-04, FR-05; RNF2, RNF3, RNF8.

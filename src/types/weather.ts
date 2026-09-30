@@ -29,6 +29,7 @@ export interface ForecastDay {
   date: string;
   temperatureMinC: number;
   temperatureMaxC: number;
+  precipitationProbabilityPercent?: number;
   condition: WeatherCondition;
 }
 

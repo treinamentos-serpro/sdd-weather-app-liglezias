@@ -73,6 +73,7 @@ Cada item da previsão deve apresentar, no mínimo:
 - condição meteorológica resumida;
 - temperatura máxima;
 - temperatura mínima;
+- probabilidade máxima de precipitação, quando fornecida pela fonte;
 - unidade aplicada aos valores.
 
 A previsão deve ser apresentada em ordem cronológica e não deve misturar dados de cidades diferentes.
@@ -224,7 +225,7 @@ Como viajante, quero receber uma explicação clara e poder tentar novamente qua
 
 - **Given** que um dia possua dados válidos
 - **When** esse dia for exibido
-- **Then** o item deve mostrar dia, condição, temperatura máxima, temperatura mínima e unidade
+- **Then** o item deve mostrar dia, condição, temperatura máxima, temperatura mínima e unidade; quando a fonte fornecer probabilidade máxima de precipitação, também deve exibi-la como porcentagem
 
 ### AC para FR-05 — Alternar unidade de temperatura
 

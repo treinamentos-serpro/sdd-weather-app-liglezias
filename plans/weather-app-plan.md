@@ -138,6 +138,7 @@ interface ForecastDay {
   date: string // data local da cidade em YYYY-MM-DD
   temperatureMinC: number // mínima do dia em Celsius
   temperatureMaxC: number // máxima do dia em Celsius
+  precipitationProbabilityPercent?: number // probabilidade máxima de precipitação em porcentagem
   condition: WeatherCondition // condição predominante do dia
 }
 
@@ -295,7 +296,7 @@ O service deve tratar ausência de `results` como lista vazia, não como exceç�
 | `latitude` | latitude da `City` | obrigatório |
 | `longitude` | longitude da `City` | obrigatório |
 | `current` | `temperature_2m,weather_code` | dados atuais mínimos |
-| `daily` | `weather_code,temperature_2m_max,temperature_2m_min` | previsão mínima |
+| `daily` | `weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max` | previsão mínima, incluindo probabilidade de chuva |
 | `timezone` | `auto` | datas no fuso da cidade |
 | `forecast_days` | `5` | hoje + quatro dias |
 | `temperature_unit` | `celsius` | Celsius canônico interno |
@@ -322,6 +323,7 @@ O service deve validar current e daily independentemente, conferindo tipos e dat
     "time": ["2026-09-30", "2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04"],
     "temperature_2m_min": [16.1, 17.0, 18.2, 19.0, 18.4],
     "temperature_2m_max": [25.3, 26.0, 27.1, 28.0, 25.8],
+    "precipitation_probability_max": [15, 25, 70, 10, 45],
     "weather_code": [2, 3, 61, 1, 80]
   }
 }
@@ -338,6 +340,7 @@ O service deve validar current e daily independentemente, conferindo tipos e dat
 | `daily.time[i]` | `ForecastDay.date` | Criar um item por índice, em ordem cronológica. |
 | `daily.temperature_2m_min[i]` | `ForecastDay.temperatureMinC` | Usar o valor Celsius do mesmo índice. |
 | `daily.temperature_2m_max[i]` | `ForecastDay.temperatureMaxC` | Usar o valor Celsius do mesmo índice. |
+| `daily.precipitation_probability_max[i]` | `ForecastDay.precipitationProbabilityPercent` | Preservar a porcentagem; se vier ausente, a UI mostra dado indisponível. |
 | `daily.weather_code[i]` | `ForecastDay.condition.code` | Mapear cada código WMO para label pt-BR. |
 | `City` selecionada | `WeatherData.city` | Anexar a cidade que originou a consulta. |
 
