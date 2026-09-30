@@ -140,15 +140,31 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Tipos: `UI
 - **Arquivos prováveis:** `src/components/CityResults.tsx`.
 - **Rastreabilidade:** FR-02; RNF3, RNF7.
 
-### T-17 — Criar componentes de estado
+### T-17 — Criar estado de carregamento
 - **Tipo:** UI
-- **Descrição:** Criar apresentações para estado inicial, loading, vazio e erro, incluindo retry quando aplicável.
-- **Critérios de aceite:** Loading é anunciado; vazio não é tratado como erro técnico; erro tem mensagem clara e ação de retry; controles são acessíveis.
+- **Descrição:** Criar a apresentação de carregamento exibida durante busca e consulta meteorológica.
+- **Critérios de aceite:** Carregamento é comunicado semanticamente (não apenas visual); não é confundido com sucesso ou erro; reutilizável por busca e forecast.
 - **Dependências:** T-13.
-- **Arquivos prováveis:** `src/components/states/LoadingState.tsx`, `EmptyState.tsx`, `ErrorState.tsx`.
+- **Arquivos prováveis:** `src/components/states/LoadingState.tsx`.
+- **Rastreabilidade:** FR-01, FR-06; RNF3, RNF6.
+
+### T-18 — Criar estado vazio
+- **Tipo:** UI
+- **Descrição:** Criar a apresentação para busca sem resultados e para a ausência inicial de dados.
+- **Critérios de aceite:** Não é apresentado como falha técnica; orienta o usuário a tentar uma nova busca; controles permanecem acessíveis.
+- **Dependências:** T-13.
+- **Arquivos prováveis:** `src/components/states/EmptyState.tsx`.
+- **Rastreabilidade:** FR-01, FR-06; RNF3, RNF6.
+
+### T-19 — Criar estado de erro com retry
+- **Tipo:** UI
+- **Descrição:** Criar a apresentação de erro recuperável, com mensagem clara e ação de tentar novamente.
+- **Critérios de aceite:** Mensagem não expõe detalhes técnicos; ação de retry é acessível por teclado e possui nome claro; componente é reutilizável entre busca e forecast.
+- **Dependências:** T-13.
+- **Arquivos prováveis:** `src/components/states/ErrorState.tsx`.
 - **Rastreabilidade:** FR-06, FR-07; RNF3, RNF4, RNF6.
 
-### T-18 — Criar exibição do clima atual
+### T-20 — Criar exibição do clima atual
 - **Tipo:** UI
 - **Descrição:** Exibir cidade, temperatura, unidade, condição e referência temporal disponíveis.
 - **Critérios de aceite:** Não inventa campos ausentes; horário usa timezone da cidade; temperatura é derivada da unidade e arredondada conforme o plano.
@@ -156,7 +172,7 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Tipos: `UI
 - **Arquivos prováveis:** `src/components/CurrentWeather.tsx`.
 - **Rastreabilidade:** FR-03, FR-05; RNF3, RNF8.
 
-### T-19 — Criar exibição da previsão diária
+### T-21 — Criar exibição da previsão diária
 - **Tipo:** UI
 - **Descrição:** Criar lista e cards para a previsão dos cinco dias.
 - **Critérios de aceite:** Exibe cinco dias completos em ordem cronológica/timezone da cidade; cards têm dia, condição, mínima, máxima e unidade; forecast incompleto não é apresentado como completo.
@@ -164,7 +180,7 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Tipos: `UI
 - **Arquivos prováveis:** `src/components/ForecastList.tsx`, `src/components/ForecastCard.tsx`.
 - **Rastreabilidade:** FR-04, FR-05; RNF2, RNF3, RNF8.
 
-### T-20 — Criar alternância Celsius/Fahrenheit
+### T-22 — Criar alternância Celsius/Fahrenheit
 - **Tipo:** UI
 - **Descrição:** Criar controle acessível para alternar unidade de apresentação.
 - **Critérios de aceite:** Celsius é inicial; unidade ativa é visível e acessível; valores atuais e da previsão mudam sem request.
@@ -172,45 +188,93 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Tipos: `UI
 - **Arquivos prováveis:** `src/components/UnitToggle.tsx`.
 - **Rastreabilidade:** FR-05; RNF3, RNF8.
 
-### T-21 — Compor a jornada na aplicação
+### T-23 — Compor a jornada na aplicação
 - **Tipo:** UI
 - **Descrição:** Conectar hook e componentes no fluxo buscar → selecionar → consultar.
 - **Critérios de aceite:** Estados são apresentados no contexto correto; resposta parcial exibe seção válida e avisa a indisponível; resposta antiga não sobrescreve busca atual; mantém uma cidade em foco.
-- **Dependências:** T-11, T-14, T-16, T-17, T-18, T-19, T-20.
+- **Dependências:** T-11, T-14, T-16, T-17, T-18, T-19, T-20, T-21, T-22.
 - **Arquivos prováveis:** `src/App.tsx`.
 - **Rastreabilidade:** FR-01–FR-07; RNF1–RNF8.
 
 ## Entrega 5 — Testes de integração e qualidade
 
-### T-22 — Testar componentes e estados da interface
+### T-24 — Testar resultados e seleção de cidade
 - **Tipo:** Test
-- **Descrição:** Criar testes Testing Library para resultados, dados, unidade, estados e acessibilidade.
-- **Critérios de aceite:** Cobre loading/empty/error/success, cidade homônima, timestamp ausente, resposta parcial, cinco dias e troca de unidade sem rede; verifica teclado e foco usando roles/labels.
-- **Dependências:** T-15 a T-21.
-- **Arquivos prováveis:** `tests/unit/CityResults.test.tsx`, `CurrentWeather.test.tsx`, `ForecastList.test.tsx`, `UnitToggle.test.tsx` e testes dos componentes de estado.
-- **Rastreabilidade:** FR-01–FR-07; RNF2, RNF3, RNF6, RNF8.
+- **Descrição:** Testar `CityResults`: exibição distinguível e seleção por teclado.
+- **Critérios de aceite:** Cobre cidade homônima, campos opcionais ausentes e seleção emitindo o `City` correto; usa roles/labels acessíveis.
+- **Dependências:** T-16.
+- **Arquivos prováveis:** `tests/unit/CityResults.test.tsx`.
+- **Rastreabilidade:** FR-01, FR-02; RNF3, RNF7.
 
-### T-23 — Implementar testes E2E principais
+### T-25 — Testar estado de carregamento
+- **Tipo:** Test
+- **Descrição:** Testar `LoadingState` isoladamente.
+- **Critérios de aceite:** Verifica anúncio semântico de carregamento e que o componente não é confundido com sucesso/erro.
+- **Dependências:** T-17.
+- **Arquivos prováveis:** `tests/unit/LoadingState.test.tsx`.
+- **Rastreabilidade:** FR-01, FR-06; RNF3, RNF6.
+
+### T-26 — Testar estado vazio
+- **Tipo:** Test
+- **Descrição:** Testar `EmptyState` isoladamente.
+- **Critérios de aceite:** Verifica mensagem de ausência de resultados e que não é tratada como erro técnico.
+- **Dependências:** T-18.
+- **Arquivos prováveis:** `tests/unit/EmptyState.test.tsx`.
+- **Rastreabilidade:** FR-01, FR-06; RNF3, RNF6.
+
+### T-27 — Testar estado de erro e retry
+- **Tipo:** Test
+- **Descrição:** Testar `ErrorState` isoladamente, incluindo a ação de retry.
+- **Critérios de aceite:** Verifica mensagem clara, ausência de detalhes técnicos e acionamento do callback de retry por teclado.
+- **Dependências:** T-19.
+- **Arquivos prováveis:** `tests/unit/ErrorState.test.tsx`.
+- **Rastreabilidade:** FR-06, FR-07; RNF3, RNF4, RNF6.
+
+### T-28 — Testar exibição do clima atual
+- **Tipo:** Test
+- **Descrição:** Testar `CurrentWeather` com dados completos e com timestamp ausente.
+- **Critérios de aceite:** Verifica que campos ausentes não são inventados e que a temperatura exibida respeita a unidade selecionada.
+- **Dependências:** T-20.
+- **Arquivos prováveis:** `tests/unit/CurrentWeather.test.tsx`.
+- **Rastreabilidade:** FR-03, FR-05; RNF3, RNF8.
+
+### T-29 — Testar exibição da previsão diária
+- **Tipo:** Test
+- **Descrição:** Testar `ForecastList` e `ForecastCard` com cinco dias e com forecast incompleto.
+- **Critérios de aceite:** Verifica ordem cronológica, campos mínimos por dia e que forecast incompleto não é exibido como completo.
+- **Dependências:** T-21.
+- **Arquivos prováveis:** `tests/unit/ForecastList.test.tsx`, `tests/unit/ForecastCard.test.tsx`.
+- **Rastreabilidade:** FR-04, FR-05; RNF2, RNF3, RNF8.
+
+### T-30 — Testar alternância de unidade
+- **Tipo:** Test
+- **Descrição:** Testar `UnitToggle` isoladamente.
+- **Critérios de aceite:** Verifica estado inicial Celsius, nome/estado acessíveis e emissão do evento de troca sem chamada de rede.
+- **Dependências:** T-22.
+- **Arquivos prováveis:** `tests/unit/UnitToggle.test.tsx`.
+- **Rastreabilidade:** FR-05; RNF3, RNF8.
+
+### T-31 — Implementar testes E2E principais
 - **Tipo:** Test
 - **Descrição:** Testar jornadas completas no browser usando interceptação Playwright.
 - **Critérios de aceite:** Cobre busca, seleção, clima, previsão, vazio, homônimos, alternância sem novo forecast, erro e retry; não acessa API real.
-- **Dependências:** T-21.
+- **Dependências:** T-23.
 - **Arquivos prováveis:** `tests/e2e/weather.spec.ts`.
 - **Rastreabilidade:** FR-01–FR-07; US-01–US-06.
 
-### T-24 — Verificar responsividade, acessibilidade e performance
+### T-32 — Verificar responsividade, acessibilidade e performance
 - **Tipo:** Test
 - **Descrição:** Verificar viewport mínimo, teclado, contraste e limites de desempenho.
 - **Critérios de aceite:** Jornada não sobrepõe a 320px nem desktop; navegação por teclado e foco funcionam; contraste é 4.5:1 para texto normal e 3:1 para texto grande/componentes; carga inicial fica abaixo de 2s em cache frio, dispositivo móvel intermediário e 4G simulada; feedback da busca ocorre em até 100ms.
-- **Dependências:** T-21, T-23.
+- **Dependências:** T-23, T-31.
 - **Arquivos prováveis:** `tests/e2e/weather.spec.ts`, fixtures/configuração Playwright se necessário.
 - **Rastreabilidade:** RNF1, RNF2, RNF3; US-05.
 
-### T-25 — Executar quality gates
+### T-33 — Executar quality gates
 - **Tipo:** Infra
 - **Descrição:** Executar verificações finais do repositório após integração.
 - **Critérios de aceite:** `pnpm lint`, `pnpm build` e `pnpm test` passam; E2E passa quando browsers Playwright estiverem disponíveis.
-- **Dependências:** T-03, T-06, T-08, T-10, T-12, T-22, T-23, T-24.
+- **Dependências:** T-03, T-06, T-08, T-10, T-12, T-24, T-25, T-26, T-27, T-28, T-29, T-30, T-31, T-32.
 - **Arquivos prováveis:** Nenhum; configurações existentes somente se um gate exigir ajuste.
 - **Rastreabilidade:** Requisitos funcionais e não funcionais do backlog.
 
@@ -218,10 +282,10 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Tipos: `UI
 
 | Requisito | Tarefas |
 | --- | --- |
-| FR-01 — Buscar cidades | T-07, T-08, T-11, T-14, T-15, T-17, T-21, T-22, T-23 |
-| FR-02 — Selecionar cidade | T-07, T-08, T-09, T-11, T-16, T-21, T-22, T-23 |
-| FR-03 — Exibir clima atual | T-05, T-09, T-10, T-18, T-21, T-22, T-23 |
-| FR-04 — Exibir previsão | T-05, T-09, T-10, T-19, T-21, T-22, T-23 |
-| FR-05 — Alternar unidade | T-02, T-03, T-11, T-18, T-19, T-20, T-22, T-23 |
-| FR-06 — Comunicar estados | T-07, T-08, T-09, T-10, T-11, T-12, T-17, T-21, T-22, T-23 |
-| FR-07 — Tentar novamente | T-09, T-10, T-11, T-12, T-17, T-21, T-22, T-23 |
+| FR-01 — Buscar cidades | T-07, T-08, T-11, T-14, T-15, T-17, T-18, T-23, T-24, T-25, T-26, T-31 |
+| FR-02 — Selecionar cidade | T-07, T-08, T-09, T-11, T-16, T-23, T-24, T-31 |
+| FR-03 — Exibir clima atual | T-05, T-09, T-10, T-20, T-23, T-28, T-31 |
+| FR-04 — Exibir previsão | T-05, T-09, T-10, T-21, T-23, T-29, T-31 |
+| FR-05 — Alternar unidade | T-02, T-03, T-11, T-20, T-21, T-22, T-23, T-28, T-29, T-30, T-31 |
+| FR-06 — Comunicar estados | T-07, T-08, T-09, T-10, T-11, T-12, T-17, T-18, T-19, T-23, T-25, T-26, T-27, T-31 |
+| FR-07 — Tentar novamente | T-09, T-10, T-11, T-12, T-19, T-23, T-27, T-31 |
