@@ -15,9 +15,11 @@ O principal valor esperado é oferecer uma consulta simples, clara e responsiva,
 
 ### Personas iniciais
 
-- **Pessoa planejando a rotina:** quer saber as condições atuais para decidir o que vestir ou como se deslocar.
-- **Viajante:** quer consultar a previsão dos próximos dias para planejar uma viagem ou atividade.
-- **Usuário em dispositivo móvel:** precisa consultar a previsão rapidamente em uma tela pequena, possivelmente fora de casa.
+| Persona | Objetivo principal | Contexto de uso | Métrica de sucesso percebida |
+| --- | --- | --- | --- |
+| **Pessoa planejando a rotina** | Consultar o clima atual para decidir o que vestir ou como se deslocar. | Principalmente mobile, pela manhã ou antes de sair; desktop como alternativa em casa ou no trabalho. | Encontra a cidade e entende a condição atual em até 1 minuto, sem precisar repetir a busca. |
+| **Viajante** | Ver a previsão dos próximos cinco dias para planejar uma viagem ou atividade. | Principalmente desktop, durante o planejamento; mobile para consultas durante o deslocamento. | Consegue consultar os cinco dias e comparar temperaturas mínima e máxima sem informações ambíguas. |
+| **Usuário com preferência de unidade** | Visualizar todas as temperaturas na unidade que reconhece, Celsius ou Fahrenheit. | Mobile ou desktop, durante uma consulta já realizada. | Alterna a unidade em uma ação e vê clima atual e previsão atualizados sem nova busca. |
 
 ## Requisitos Funcionais
 
