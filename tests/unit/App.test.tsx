@@ -7,8 +7,8 @@ describe('App', () => {
   it('starts idle with brand, search, and unit controls', () => {
     render(<App />);
 
-    expect(screen.getByRole('link', { name: 'Clima Agora' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 1, name: 'Clima Agora' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Clima do Luciozo' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Clima do Luciozo' })).toBeInTheDocument();
     expect(screen.getByRole('search')).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'Unidade de temperatura' })).toBeInTheDocument();
     expect(

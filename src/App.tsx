@@ -62,7 +62,7 @@ export default function App() {
               <span aria-hidden="true" className="text-2xl text-sun">
                 ☀
               </span>
-              <span>Clima Agora</span>
+              <span>Clima do Luciozo</span>
             </a>
           </h1>
 
