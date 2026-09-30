@@ -15,6 +15,17 @@ A aplicação será uma SPA React estática com quatro camadas simples:
 
 Os componentes não conhecerão URLs, parâmetros da API ou o formato bruto das respostas. O service converterá respostas externas em contratos internos antes de entregá-las ao hook.
 
+### Responsabilidades e testabilidade
+
+- **`components/` — apresentação:** renderiza props e emite eventos de intenção do usuário. Pode ser testado com Testing Library usando roles, labels, teclado e estados visuais, sem rede.
+- **`hooks/` — orquestração/estado:** coordena chamadas, transições de status, seleção, concorrência e retry. Pode ser testado com services falsos para verificar comportamento sem depender de HTTP.
+- **`services/` — acesso a dados:** monta requests, aplica timeout, valida payloads e normaliza respostas externas. Pode ser testado com `fetch` mockado e fixtures de sucesso, erro e resposta parcial.
+- **`lib/` — funções puras:** converte temperatura, formata datas e mapeia códigos WMO. Pode ser testado com entradas e saídas determinísticas, incluindo fronteiras numéricas.
+- **`types/` — contratos:** centraliza os formatos internos e reduz divergência entre camadas; a compilação strict verifica incompatibilidades.
+- **`App.tsx` — composição:** conecta hook e componentes, sem conter regras de API ou transformação de dados. O teste E2E valida essa integração por comportamento.
+
+Essa separação permite testar cada decisão no nível mais barato: funções puras em unitários, rede com mocks, estado com doubles e jornada completa apenas nos fluxos críticos.
+
 ### Princípios
 
 - Celsius será a unidade interna canônica; Fahrenheit será derivado na apresentação.
@@ -82,6 +93,18 @@ tests/
 ```
 
 Os nomes acima são a estrutura-alvo; os arquivos podem ser agrupados apenas quando isso reduzir duplicação sem misturar responsabilidades.
+
+### Regras de dependência
+
+```text
+App -> components + hooks
+hooks -> services + lib + types
+services -> lib + types
+components -> lib + types
+lib -> types (quando necessário)
+```
+
+`components` não importa `services` diretamente, `services` não importa componentes e `lib` não conhece React. Isso mantém a UI substituível, a rede mockável e as funções de domínio independentes do ambiente do navegador.
 
 ## Data Model
 
