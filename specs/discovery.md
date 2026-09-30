@@ -159,15 +159,17 @@ A unidade selecionada deve ser aplicada de maneira consistente em todas as tempe
 | Quem será responsável por monitorar falhas da API, atualizar dependências e prestar suporte? | Sem ownership definido, incidentes e degradação do serviço podem permanecer sem tratamento. |
 | Quais funcionalidades estão explicitamente fora do escopo da primeira versão? | Evita crescimento descontrolado do produto e conflitos de expectativa entre stakeholders. |
 
+## Decisões
+
+| Decisão | Justificativa | Perguntas em aberto resolvidas |
+| --- | --- | --- |
+| **Fonte de dados: Open-Meteo, sem API key** | Reduz o atrito de configuração e permite validar o produto sem gerenciar credenciais na primeira versão. | Qual fonte será usada? A fonte exige autenticação? |
+| **"5 dias" = hoje + 4 dias** | Define uma regra objetiva para o período exibido e mantém o dia atual junto dos quatro dias seguintes. | A previsão inclui hoje ou os cinco dias completos seguintes? |
+| **Unidade padrão: Celsius** | É coerente com o público inicial em pt-BR e fornece um comportamento inicial previsível. | Qual unidade deve ser usada inicialmente? |
+| **Sem autenticação e sem persistência de servidor** | Mantém a primeira versão focada na consulta imediata e evita criar contas, sessões e armazenamento de dados pessoais. | A aplicação será restrita? É necessário armazenar dados de busca ou preferências? |
+| **Idioma da UI: pt-BR** | Alinha textos, datas e mensagens ao público brasileiro definido para a primeira versão. | Quais idiomas e formatos regionais devem ser suportados? |
+
 ## Suposições
-
-### Decisões provisórias para o treinamento
-
-- A fonte de dados será a Open-Meteo, sem necessidade de chave de API.
-- "Previsão de cinco dias" significa hoje e os quatro dias seguintes.
-- A unidade padrão será Celsius.
-- A aplicação não terá autenticação nem persistência em servidor.
-- O idioma inicial da interface será português do Brasil.
 
 - A primeira versão terá uma única cidade em foco por vez.
 - O usuário informará uma cidade manualmente; geolocalização automática não faz parte do escopo inicial até confirmação.
