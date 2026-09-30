@@ -259,7 +259,7 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Os IDs for
 ### T-31 — Implementar testes E2E principais
 - **Tipo:** Test
 - **Descrição:** Testar jornadas completas no browser usando interceptação Playwright.
-- **Critérios de aceite:** Playwright passa cenários separados para busca→seleção→clima+5 dias, sem resultados, homônimos, C/F sem segundo request forecast, falha+retry e retry com nova falha; todas as respostas vêm de `page.route` e nenhuma requisição externa ocorre. (FR-01–FR-07; US-01–US-06)
+- **Critérios de aceite:** Playwright completa o fluxo busca→seleção→clima atual+5 dias em viewport desktop e mobile de 320px; também passa cenários para sem resultados, cidades homônimas, C/F sem segundo request forecast, falha+retry e retry com nova falha; respostas vêm de `page.route` e nenhuma requisição externa ocorre. (FR-01–FR-07; RNF2; US-01–US-06)
 - **Dependências:** T-23.
 - **Arquivos prováveis:** `tests/e2e/weather.spec.ts`.
 - **Rastreabilidade:** FR-01–FR-07; US-01–US-06.
