@@ -6,12 +6,12 @@ As tarefas estão organizadas por entrega e em ordem de dependência. Os IDs for
 
 ## Entrega 1 — Contratos e funções de domínio
 
-### T-01 — Definir contratos compartilhados
+### T-01 — Definir contratos compartilhados e mock de UI
 - **Tipo:** Data
-- **Descrição:** Definir os tipos `Unit`, `City`, `WeatherCondition`, `CurrentWeather`, `ForecastDay`, `WeatherData`, `SearchState` e `WeatherState`.
-- **Critérios de aceite:** `pnpm build` compila os contratos com TypeScript strict; `City.country`, `WeatherData.current` e `WeatherData.forecast` aceitam ausência; quando presente, `forecast` aceita uma lista de cinco `ForecastDay`. (FR-01–FR-07, RNF4, RNF8)
+- **Descrição:** Definir os contratos compartilhados e fornecer `mockWeatherData` estático para desenvolver a UI sem API.
+- **Critérios de aceite:** `pnpm build` compila os contratos com TypeScript strict; `City.country`, `WeatherData.current` e `WeatherData.forecast` aceitam ausência; quando presente, `forecast` aceita cinco `ForecastDay`; o mock exportado contém cidade, timezone, clima atual e cinco dias consecutivos, não importa services e não faz chamadas de rede. (FR-01–FR-07, RNF4, RNF8)
 - **Dependências:** nenhuma.
-- **Arquivos prováveis:** `src/types/weather.ts`.
+- **Arquivos prováveis:** `src/types/weather.ts`, `src/mocks/weather.ts`.
 - **Rastreabilidade:** FR-01–FR-07; RNF4, RNF8.
 
 ### T-02 — Implementar conversão e arredondamento C/F
